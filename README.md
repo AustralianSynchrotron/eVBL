@@ -1,10 +1,8 @@
-Software to save diffraction images from the education area detector.
+Software to save diffraction pattern images from the Australian Synchrotron Educational Virtual Beam Line (eVBL) area detectors.
 
 ==Install==
 
 Dependencies:
 * Python 2.7
-* SimpleCV (https://github.com/sightmachine/simplecv#installation)
-* [OpenCV](http://opencv.org/)(?)
-* Python packages:
-  * pygame ([Mac OS X](https://bitbucket.org/pygame/pygame/issue/82/homebrew-on-leopard-fails-to-install#comment-627494))
+* [SimpleCV](https://github.com/sightmachine/simplecv)
+* [PySide 1.1.2](http://qt-project.org/wiki/PySide)
