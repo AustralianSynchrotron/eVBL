@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import SimpleCV
 import sys
+import SimpleCV
+import PySide
 from PySide import QtGui, QtCore
-
-#image_path = 'resources/TEST_AS_Unknown_532nm_1000_4_AUTOLIGHT.bmp'
-#image = SimpleCV.Image(image_path)
-#image.show()
+sys.modules['PyQt4'] = PySide
+from PIL import ImageQt
 
 
 class MainWindow(QtGui.QWidget):
@@ -29,21 +28,32 @@ class MainWindow(QtGui.QWidget):
 
 
 class LiveCameraFrame(QtGui.QFrame):
+    width = 200
+    height = 200
+    refreshRate = 50. # Hz
+
     def __init__(self, parent):
         super(LiveCameraFrame, self).__init__()
-
-        self.timer = QtCore.QBasicTimer()
-        self.timer.start(1000, self)
+        self.camera = SimpleCV.Camera()
 
         self.initUi()
 
+        self.timer = QtCore.QBasicTimer()
+        self.timer.start(1000/LiveCameraFrame.refreshRate, self)
+
     def initUi(self):
-        self.setMinimumSize(200, 200)
-        self.setBackgroundRole(QtGui.QPalette.Base)
-        self.setAutoFillBackground(True)
+        self.setMinimumSize(LiveCameraFrame.width, LiveCameraFrame.height)
+        self.label = QtGui.QLabel(self)
+        self.label.setMinimumSize(LiveCameraFrame.width, LiveCameraFrame.height)
+
+    def updateImage(self):
+        image = self.camera.getImage()
+        scaledImage = image.adaptiveScale( (LiveCameraFrame.width, LiveCameraFrame.height) )
+        pixmap = QtGui.QPixmap(ImageQt.ImageQt(scaledImage.getPIL()))
+        self.label.setPixmap(pixmap)
 
     def timerEvent(self, event):
-        pass
+        self.updateImage()
 
 
 class ControlsFrame(QtGui.QFrame):
