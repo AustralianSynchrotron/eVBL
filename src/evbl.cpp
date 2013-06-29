@@ -15,9 +15,10 @@ eVBL::eVBL(QWidget *parent) :
     //set up the process for capturing still images for the main display
     imageCapture = new QCameraImageCapture(camera);
     camera->setCaptureMode(QCamera::CaptureStillImage);
-    //imageCapture->setCaptureDestination(ui->imageCap);
+    imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
 
-    imageCapture->capture();
+    //imageCapture->capture();
+
 
     //combo box showing the attached camera devices
     foreach(const QByteArray &deviceName, QCamera::availableDevices())
@@ -26,6 +27,14 @@ eVBL::eVBL(QWidget *parent) :
         ui->device_list->addItem(description);
         qDebug() << description;
     }
+
+    //here is all the debugging shit
+    qDebug() << imageCapture->supportedBufferFormats().count();
+    foreach(const QVideoFrame::PixelFormat &bufferformat, imageCapture->supportedBufferFormats())
+    {
+        qDebug() << bufferformat;
+    }
+
 }
 
 eVBL::~eVBL()
