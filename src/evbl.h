@@ -2,6 +2,9 @@
 #define EVBL_H
 
 #include <QMainWindow>
+#include <QtMultimedia/QCamera>
+#include <QtMultimediaWidgets/QCameraViewfinder>
+#include <QtMultimedia/QCameraImageCapture>
 
 namespace Ui {
 class eVBL;
@@ -17,6 +20,9 @@ public:
     
 private:
     Ui::eVBL *ui;
+
+    QCamera *camera;
+    QCameraImageCapture *imageCapture;
 };
 
 #endif // EVBL_H
