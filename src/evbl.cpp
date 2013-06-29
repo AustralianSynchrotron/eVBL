@@ -15,9 +15,16 @@ eVBL::eVBL(QWidget *parent) :
     //set up the process for capturing still images for the main display
     imageCapture = new QCameraImageCapture(camera);
     camera->setCaptureMode(QCamera::CaptureStillImage);
-    imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToBuffer);
+    imageCapture->setCaptureDestination(QCameraImageCapture::CaptureToFile);
 
-    //imageCapture->capture();
+
+
+    //connection for displaying image when captured
+    connect(imageCapture, SIGNAL(imageCaptured(int,QImage)), this, SLOT(showCapturedImage(int,QImage)));
+    //connection for capturing image when button clicked
+    connect(ui->capture_frame, SIGNAL(clicked()),imageCapture, SLOT(capture()));
+
+
 
 
     //combo box showing the attached camera devices
@@ -40,4 +47,11 @@ eVBL::eVBL(QWidget *parent) :
 eVBL::~eVBL()
 {
     delete ui;
+}
+
+void eVBL::showCapturedImage(int requestId, const QImage& img)
+{
+    Q_UNUSED(requestId);
+    ui->show_capture->QLabel::setPixmap(QPixmap::fromImage(img));
+
 }

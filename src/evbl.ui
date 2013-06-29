@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>746</width>
-    <height>535</height>
+    <width>849</width>
+    <height>605</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,24 +22,17 @@
      <height>151</height>
     </rect>
    </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QComboBox" name="device_list">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>450</y>
+     <x>10</x>
+     <y>560</y>
      <width>331</width>
      <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QCameraViewfinder" name="imageCap" native="true">
-   <property name="geometry">
-    <rect>
-     <x>230</x>
-     <y>60</y>
-     <width>491</width>
-     <height>371</height>
     </rect>
    </property>
   </widget>
@@ -54,6 +47,25 @@
    </property>
    <property name="text">
     <string>Capture</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="show_capture">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>40</y>
+     <width>620</width>
+     <height>480</height>
+    </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

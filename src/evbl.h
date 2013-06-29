@@ -17,6 +17,9 @@ class eVBL : public QMainWindow
 public:
     explicit eVBL(QWidget *parent = 0);
     ~eVBL();
+
+private slots:
+    void showCapturedImage(int requestId, const QImage& img);
     
 private:
     Ui::eVBL *ui;
