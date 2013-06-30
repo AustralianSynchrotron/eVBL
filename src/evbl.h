@@ -27,9 +27,6 @@ private slots:
 private:
     Ui::eVBL *ui;
 
-    QCamera *camera;
-    QCameraImageCapture *imageCapture;
-
     cv::VideoCapture videoCapture;
 
 protected:
