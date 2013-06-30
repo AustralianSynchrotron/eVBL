@@ -1,11 +1,15 @@
 #include "evbl.h"
 #include "ui_evbl.h"
 
+#include <opencv2/core/core.hpp>
+
 eVBL::eVBL(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::eVBL)
 {
     ui->setupUi(this);
+
+    qDebug() << cv::cubeRoot(8.0f);
 
     //set up the video preview screen and start it running
     camera = new QCamera;

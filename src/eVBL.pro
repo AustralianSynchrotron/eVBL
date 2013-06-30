@@ -19,10 +19,10 @@ HEADERS  += evbl.h
 
 FORMS    += evbl.ui
 
-INCLUDEPATH += opencv/include
-LIBS += -Lopencv/lib \
-    -lopencv_core \
-    -lopencv_highgui \
-    -lopencv_imgproc \
-    -lopencv_features2d \
-    -lopencv_calib3d
+INCLUDEPATH += opencv\\include
+LIBS += -L$$PWD\\opencv\\lib \
+    -lopencv_core245d \
+    -lopencv_highgui245d \
+    -lopencv_imgproc245d \
+    -lopencv_features2d245d \
+    -lopencv_calib3d245d

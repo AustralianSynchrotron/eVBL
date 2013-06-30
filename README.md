@@ -6,6 +6,8 @@ Developing
 To compile the Qt project you first need to compile opencv.
 
 ```bash
+git submodule init
+git submodule update
 cd src/opencv
 cmake CMakeLists.txt
 ```
