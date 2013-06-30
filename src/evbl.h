@@ -6,6 +6,9 @@
 #include <QtMultimediaWidgets/QCameraViewfinder>
 #include <QtMultimedia/QCameraImageCapture>
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/opencv.hpp>
+
 namespace Ui {
 class eVBL;
 }
@@ -26,6 +29,13 @@ private:
 
     QCamera *camera;
     QCameraImageCapture *imageCapture;
+
+    cv::VideoCapture videoCapture;
+
+protected:
+    void timerEvent(QTimerEvent*);
+
 };
+
 
 #endif // EVBL_H

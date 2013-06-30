@@ -13,19 +13,6 @@
   <property name="windowTitle">
    <string>eVBL</string>
   </property>
-  <widget class="QCameraViewfinder" name="viewFinder" native="true">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>60</y>
-     <width>191</width>
-     <height>151</height>
-    </rect>
-   </property>
-   <property name="autoFillBackground">
-    <bool>true</bool>
-   </property>
-  </widget>
   <widget class="QComboBox" name="device_list">
    <property name="geometry">
     <rect>
@@ -62,15 +49,19 @@
     <bool>true</bool>
    </property>
   </widget>
+  <widget class="CVImageWidget" name="previewVideo" native="true">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>30</y>
+     <width>191</width>
+     <height>191</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
-  <customwidget>
-   <class>QCameraViewfinder</class>
-   <extends>QWidget</extends>
-   <header>qcameraviewfinder.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>CVImageWidget</class>
    <extends>QWidget</extends>

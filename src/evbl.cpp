@@ -12,17 +12,16 @@ eVBL::eVBL(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    videoCapture.open(0);
 
     //set up the video preview screen and start it running
+    /*
     camera = new QCamera;
     camera->setViewfinder(ui->viewFinder);
     camera->start();
 
-
+    */
     connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
-
-
-
 
 
 
@@ -51,6 +50,7 @@ eVBL::eVBL(QWidget *parent) :
         qDebug() << description;
     }
 
+    startTimer(100);
 
 }
 
@@ -59,8 +59,19 @@ eVBL::~eVBL()
     delete ui;
 }
 
+void eVBL::timerEvent(QTimerEvent*) {
+    cv::Mat frame;
+    videoCapture.read(frame);
+    //qDebug() << frame.size().width;
+    ui->previewVideo->showImage(frame);
+    //QImage* image = new QImage(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+    //ui->show_capture->QLabel::setPixmap(QPixmap::fromImage(image));
+}
+
+
 void eVBL::take_shot()
 {
+    /*
     camera->stop();
     cv::VideoCapture cap(0);
     cv::Mat frame;
@@ -74,21 +85,8 @@ void eVBL::take_shot()
     cap.set(CV_CAP_PROP_SATURATION,32);
 
     cap.open(0);
-    cap.read(frame);
+    */
+    cv::Mat frame;
+    videoCapture.read(frame);
     ui->cvwidget_test->showImage(frame);
-
-        qDebug() << cap.get(CV_CAP_PROP_FRAME_WIDTH);
-        qDebug() << cap.get(CV_CAP_PROP_FRAME_HEIGHT);
-        qDebug() << cap.get(CV_CAP_PROP_BRIGHTNESS);
-        qDebug() << cap.get(CV_CAP_PROP_CONTRAST);
-        qDebug() << cap.get(CV_CAP_PROP_SATURATION);
-
-
-
-            //cv::imwrite("test.jpg",edges);
-
-    cap.release();
-    camera = new QCamera;
-    camera->setViewfinder(ui->viewFinder);
-    camera->start();
 }
