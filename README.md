@@ -1,11 +1,11 @@
 Software to save diffraction pattern images from the Australian Synchrotron Educational Virtual Beam Line (eVBL) area detectors.
 
-Install
--------
+Developing
+----------
 
-Dependencies:
+To compile the Qt project you first need to compile opencv.
 
-* Python 2.7
-* [SimpleCV](https://github.com/sightmachine/simplecv)
-* [PySide 1.1.2](http://qt-project.org/wiki/PySide)
-
+```bash
+cd src/opencv
+cmake CMakeLists.txt
+```

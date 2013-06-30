@@ -18,3 +18,11 @@ SOURCES += main.cpp\
 HEADERS  += evbl.h
 
 FORMS    += evbl.ui
+
+INCLUDEPATH += opencv/include
+LIBS += -Lopencv/lib \
+    -lopencv_core \
+    -lopencv_highgui \
+    -lopencv_imgproc \
+    -lopencv_features2d \
+    -lopencv_calib3d
