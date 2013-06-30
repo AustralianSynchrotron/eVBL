@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>849</width>
-    <height>605</height>
+    <width>1041</width>
+    <height>745</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>560</y>
+     <y>710</y>
      <width>331</width>
      <height>22</height>
     </rect>
@@ -49,23 +49,17 @@
     <string>Capture</string>
    </property>
   </widget>
-  <widget class="QLabel" name="show_capture">
+  <widget class="CVImageWidget" name="cvwidget_test" native="true">
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>40</y>
-     <width>620</width>
-     <height>480</height>
+     <y>30</y>
+     <width>811</width>
+     <height>641</height>
     </rect>
    </property>
    <property name="autoFillBackground">
     <bool>true</bool>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::Box</enum>
-   </property>
-   <property name="text">
-    <string/>
    </property>
   </widget>
  </widget>
@@ -75,6 +69,12 @@
    <class>QCameraViewfinder</class>
    <extends>QWidget</extends>
    <header>qcameraviewfinder.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CVImageWidget</class>
+   <extends>QWidget</extends>
+   <header>cvimagewidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -15,7 +15,8 @@ TEMPLATE = app
 SOURCES += main.cpp\
         evbl.cpp
 
-HEADERS  += evbl.h
+HEADERS  += evbl.h \
+    cvimagewidget.h
 
 FORMS    += evbl.ui
 

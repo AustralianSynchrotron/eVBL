@@ -2,6 +2,9 @@
 #include "ui_evbl.h"
 
 #include <opencv2/core/core.hpp>
+#include <opencv2/opencv.hpp>
+
+#include <cvimagewidget.h>
 
 eVBL::eVBL(QWidget *parent) :
     QMainWindow(parent),
@@ -9,13 +12,22 @@ eVBL::eVBL(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    qDebug() << cv::cubeRoot(8.0f);
 
     //set up the video preview screen and start it running
     camera = new QCamera;
     camera->setViewfinder(ui->viewFinder);
     camera->start();
 
+
+    connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
+
+
+
+
+
+
+
+/*
     //set up the process for capturing still images for the main display
     imageCapture = new QCameraImageCapture(camera);
     camera->setCaptureMode(QCamera::CaptureStillImage);
@@ -29,7 +41,7 @@ eVBL::eVBL(QWidget *parent) :
     connect(ui->capture_frame, SIGNAL(clicked()),imageCapture, SLOT(capture()));
 
 
-
+   */
 
     //combo box showing the attached camera devices
     foreach(const QByteArray &deviceName, QCamera::availableDevices())
@@ -39,12 +51,6 @@ eVBL::eVBL(QWidget *parent) :
         qDebug() << description;
     }
 
-    //here is all the debugging shit
-    qDebug() << imageCapture->supportedBufferFormats().count();
-    foreach(const QVideoFrame::PixelFormat &bufferformat, imageCapture->supportedBufferFormats())
-    {
-        qDebug() << bufferformat;
-    }
 
 }
 
@@ -53,9 +59,36 @@ eVBL::~eVBL()
     delete ui;
 }
 
-void eVBL::showCapturedImage(int requestId, const QImage& img)
+void eVBL::take_shot()
 {
-    Q_UNUSED(requestId);
-    ui->show_capture->QLabel::setPixmap(QPixmap::fromImage(img));
+    camera->stop();
+    cv::VideoCapture cap(0);
+    cv::Mat frame;
 
+       //cap >> frame; // get a new frame from camera
+
+    cap.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
+    cap.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+    cap.set(CV_CAP_PROP_BRIGHTNESS,128);
+    cap.set(CV_CAP_PROP_CONTRAST,32);
+    cap.set(CV_CAP_PROP_SATURATION,32);
+
+    cap.open(0);
+    cap.read(frame);
+    ui->cvwidget_test->showImage(frame);
+
+        qDebug() << cap.get(CV_CAP_PROP_FRAME_WIDTH);
+        qDebug() << cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+        qDebug() << cap.get(CV_CAP_PROP_BRIGHTNESS);
+        qDebug() << cap.get(CV_CAP_PROP_CONTRAST);
+        qDebug() << cap.get(CV_CAP_PROP_SATURATION);
+
+
+
+            //cv::imwrite("test.jpg",edges);
+
+    cap.release();
+    camera = new QCamera;
+    camera->setViewfinder(ui->viewFinder);
+    camera->start();
 }

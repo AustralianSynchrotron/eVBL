@@ -19,8 +19,8 @@ public:
     ~eVBL();
 
 private slots:
-    void showCapturedImage(int requestId, const QImage& img);
-    
+    void take_shot();
+
 private:
     Ui::eVBL *ui;
 
