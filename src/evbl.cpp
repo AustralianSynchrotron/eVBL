@@ -51,7 +51,7 @@ eVBL::~eVBL()
 void eVBL::timerEvent(QTimerEvent*) {
 
     videoCapture.read(preview_frame);
-    cv::resize(preview_frame,output_preview,cv::Size(EVBL_PREVIEW_WINDOW_WIDTH,EVBL_PREVIEW_WINDOW_HEIGHT),0,0,cv::INTER_AREA);
+    cv::resize(preview_frame,output_preview,cv::Size(EVBL_PREVIEW_WINDOW_WIDTH,EVBL_PREVIEW_WINDOW_HEIGHT),0,0,cv::INTER_LINEAR);
     ui->previewVideo->showImage(output_preview);
 }
 
@@ -72,7 +72,7 @@ void eVBL::take_shot()
 void eVBL::display_capture(cv::Mat display)
 {
     cv::Mat output_display;
-    cv::resize(display,output_display,cv::Size(),0.25,0.25,cv::INTER_CUBIC);
+    cv::resize(display,output_display,cv::Size(),0.5,0.5,cv::INTER_LINEAR);
     ui->display_capture_frame->showImage(output_display);
 
 }
