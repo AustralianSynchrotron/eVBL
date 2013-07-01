@@ -10,6 +10,8 @@
 #define EVBL_MAX_IMAGE_WIDTH 2592
 #define EVBL_PREVIEW_WINDOW_HEIGHT 240
 #define EVBL_PREVIEW_WINDOW_WIDTH 320
+#define EVBL_PREVIEW_WINDOW_REFRESH 100
+
 
 eVBL::eVBL(QWidget *parent) :
     QMainWindow(parent),
@@ -19,9 +21,7 @@ eVBL::eVBL(QWidget *parent) :
 
     videoCapture.open(0);
 
-    //qDebug() << videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
-    //qDebug() << videoCapture.get(CV_CAP_PROP_FRAME_WIDTH);
-    //set up the video preview screen and start it running
+    //qDebug() << cv::getTickFrequency();
 
     connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
 
@@ -32,14 +32,14 @@ eVBL::eVBL(QWidget *parent) :
     {
         QString description = QCamera::deviceDescription(deviceName);
         ui->device_list->addItem(description);
-        qDebug() << description;
     }
-    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_PREVIEW_WINDOW_HEIGHT);
-    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_PREVIEW_WINDOW_WIDTH);
+
 
 
     //set up the video preview screen and start it running
-    startTimer(40);
+    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_PREVIEW_WINDOW_HEIGHT);
+    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_PREVIEW_WINDOW_WIDTH);
+    startTimer(EVBL_PREVIEW_WINDOW_REFRESH);
 
 }
 
@@ -51,32 +51,40 @@ eVBL::~eVBL()
 void eVBL::timerEvent(QTimerEvent*) {
     cv::Mat frame;
     videoCapture.read(frame);
-    //qDebug() << frame.size().width;
     ui->previewVideo->showImage(frame);
-    //QImage* image = new QImage(frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-    //ui->show_capture->QLabel::setPixmap(QPixmap::fromImage(image));
 }
 
 
 void eVBL::take_shot()
 {
+    if(!ui->capture_frame->isEnabled()) {
+        return;
+    }
 
-    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 3888);
-    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 5184);
+    ui->capture_frame->setDisabled(true);
+    //ui->capture_frame->setEnabled(false);
+    //repaint();
+    //QEventLoop::processEvents(0);
+    qApp->processEvents();
 
-    //videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
-    //videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 960);
-    //cap.set(CV_CAP_PROP_BRIGHTNESS,128);
-    //cap.set(CV_CAP_PROP_CONTRAST,32);
-    //cap.set(CV_CAP_PROP_SATURATION,32);
-    qDebug() << videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
-    qDebug() << videoCapture.get(CV_CAP_PROP_FRAME_WIDTH);
-
+    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_MAX_IMAGE_HEIGHT);
+    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_MAX_IMAGE_WIDTH);
 
     cv::Mat buffered_snapshot;
     videoCapture.read(buffered_snapshot);
-    ui->cvwidget_test->showImage(buffered_snapshot);
+
+    display_capture(buffered_snapshot);
 
     videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_PREVIEW_WINDOW_HEIGHT);
     videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_PREVIEW_WINDOW_WIDTH);
+    //ui->capture_frame->setEnabled(true);
+    ui->capture_frame->setDisabled(false);
+}
+
+void eVBL::display_capture(cv::Mat display)
+{
+    cv::Mat output_display;
+    cv::resize(display,output_display,cv::Size(),0.25,0.25,cv::INTER_LINEAR);
+    ui->display_capture_frame->showImage(output_display);
+
 }

@@ -31,7 +31,7 @@ unix {
     -lopencv_calib3d
 }
 
-win {
+win32 {
     LIBS += -lopencv_core245d \
     -lopencv_highgui245d \
     -lopencv_imgproc245d \

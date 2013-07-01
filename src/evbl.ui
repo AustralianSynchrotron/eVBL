@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1356</width>
-    <height>790</height>
+    <width>1347</width>
+    <height>916</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QComboBox" name="device_list">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>710</y>
+     <x>50</x>
+     <y>30</y>
      <width>331</width>
      <height>22</height>
     </rect>
@@ -36,49 +36,11 @@
     <string>Capture</string>
    </property>
   </widget>
-  <widget class="CVImageWidget" name="cvwidget_test" native="true">
-   <property name="geometry">
-    <rect>
-     <x>360</x>
-     <y>30</y>
-     <width>960</width>
-     <height>720</height>
-    </rect>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="autoFillBackground">
-    <bool>true</bool>
-   </property>
-   <widget class="QFrame" name="frame">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>960</width>
-      <height>720</height>
-     </rect>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Raised</enum>
-    </property>
-    <property name="lineWidth">
-     <number>2</number>
-    </property>
-   </widget>
-  </widget>
   <widget class="CVImageWidget" name="previewVideo" native="true">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>40</y>
+     <y>90</y>
      <width>320</width>
      <height>240</height>
     </rect>
@@ -86,6 +48,95 @@
    <property name="autoFillBackground">
     <bool>true</bool>
    </property>
+  </widget>
+  <widget class="QComboBox" name="zoom_setting">
+   <property name="geometry">
+    <rect>
+     <x>520</x>
+     <y>40</y>
+     <width>101</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="editable">
+    <bool>true</bool>
+   </property>
+   <property name="currentText">
+    <string>25%</string>
+   </property>
+   <item>
+    <property name="text">
+     <string>25%</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>50%</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>75%</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>100%</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>150%</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>200%</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Fit</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>70</y>
+     <width>964</width>
+     <height>724</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Sunken</enum>
+   </property>
+   <property name="lineWidth">
+    <number>2</number>
+   </property>
+   <widget class="CVImageWidget" name="display_capture_frame" native="true">
+    <property name="geometry">
+     <rect>
+      <x>2</x>
+      <y>2</y>
+      <width>960</width>
+      <height>720</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

@@ -27,6 +27,8 @@ private slots:
 private:
     Ui::eVBL *ui;
 
+    void display_capture(cv::Mat display);
+
     cv::VideoCapture videoCapture;
     cv::Mat buffered_snapshot;
 
