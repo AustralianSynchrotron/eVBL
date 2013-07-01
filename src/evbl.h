@@ -9,6 +9,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 
+#include "camerathread.h"
+
 namespace Ui {
 class eVBL;
 }
@@ -23,6 +25,7 @@ public:
 
 private slots:
     void take_shot();
+    void updatePreview();
 
 private:
     Ui::eVBL *ui;
@@ -33,6 +36,7 @@ private:
     cv::Mat buffered_snapshot;
     cv::Mat preview_frame;
     cv::Mat output_preview;
+    CameraThread camera_thread;
 
 protected:
     void timerEvent(QTimerEvent*);

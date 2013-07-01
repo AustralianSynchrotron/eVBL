@@ -13,10 +13,12 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        evbl.cpp
+        evbl.cpp \
+    camerathread.cpp
 
 HEADERS  += evbl.h \
-    cvimagewidget.h
+    cvimagewidget.h \
+    camerathread.h
 
 FORMS    += evbl.ui
 

@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <opencv2/core/core.hpp>
+#include <opencv2/opencv.hpp>
 
 class CameraThread : public QThread
 {
@@ -13,10 +14,12 @@ public:
 private:
     void run();
 
+    cv::VideoCapture videoCapture;
     cv::Mat bufferedFrame;
+    cv::Mat previewFrame;
 
 signals:
-    void sendPreview(cv::Mat previewFrame);
+    void sendPreview();
 
 public slots:
 

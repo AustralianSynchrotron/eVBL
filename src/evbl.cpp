@@ -5,12 +5,13 @@
 #include <opencv2/opencv.hpp>
 
 #include <cvimagewidget.h>
+#include "camerathread.h"
 
 #define EVBL_MAX_IMAGE_HEIGHT 1944
 #define EVBL_MAX_IMAGE_WIDTH 2592
 #define EVBL_PREVIEW_WINDOW_HEIGHT 240
 #define EVBL_PREVIEW_WINDOW_WIDTH 320
-#define EVBL_PREVIEW_WINDOW_REFRESH 100
+#define EVBL_PREVIEW_WINDOW_REFRESH 40
 
 
 eVBL::eVBL(QWidget *parent) :
@@ -19,11 +20,20 @@ eVBL::eVBL(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    //qRegisterMetaType(cv::Mat);
+
+    connect(&camera_thread, SIGNAL(sendPreview()), this, SLOT(updatePreview()), Qt::QueuedConnection);
+    camera_thread.start();
+
+    /*
     videoCapture.open(0);
 
-    //qDebug() << cv::getTickFrequency();
-
+    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 100000);
+    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 100000);
+    qDebug() << videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
+    qDebug() << videoCapture.get(CV_CAP_PROP_FRAME_WIDTH);
     connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
+
 
 
 
@@ -39,20 +49,26 @@ eVBL::eVBL(QWidget *parent) :
     //set up the video preview screen and start it running
     videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_MAX_IMAGE_HEIGHT);
     videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_MAX_IMAGE_WIDTH);
-    startTimer(EVBL_PREVIEW_WINDOW_REFRESH);
+    //startTimer(EVBL_PREVIEW_WINDOW_REFRESH);
+    */
 
+}
+
+void eVBL::updatePreview() {
+    qDebug() << "update preview";
 }
 
 eVBL::~eVBL()
 {
+    camera_thread.quit();
+    camera_thread.wait();
     delete ui;
+
 }
 
 void eVBL::timerEvent(QTimerEvent*) {
 
-    videoCapture.read(preview_frame);
-    cv::resize(preview_frame,output_preview,cv::Size(EVBL_PREVIEW_WINDOW_WIDTH,EVBL_PREVIEW_WINDOW_HEIGHT),0,0,cv::INTER_AREA);
-    ui->previewVideo->showImage(output_preview);
+
 }
 
 
