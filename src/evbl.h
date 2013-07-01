@@ -31,6 +31,8 @@ private:
 
     cv::VideoCapture videoCapture;
     cv::Mat buffered_snapshot;
+    cv::Mat preview_frame;
+    cv::Mat output_preview;
 
 protected:
     void timerEvent(QTimerEvent*);

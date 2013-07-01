@@ -37,8 +37,8 @@ eVBL::eVBL(QWidget *parent) :
 
 
     //set up the video preview screen and start it running
-    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_PREVIEW_WINDOW_HEIGHT);
-    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_PREVIEW_WINDOW_WIDTH);
+    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_MAX_IMAGE_HEIGHT);
+    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_MAX_IMAGE_WIDTH);
     startTimer(EVBL_PREVIEW_WINDOW_REFRESH);
 
 }
@@ -49,42 +49,30 @@ eVBL::~eVBL()
 }
 
 void eVBL::timerEvent(QTimerEvent*) {
-    cv::Mat frame;
-    videoCapture.read(frame);
-    ui->previewVideo->showImage(frame);
+
+    videoCapture.read(preview_frame);
+    cv::resize(preview_frame,output_preview,cv::Size(EVBL_PREVIEW_WINDOW_WIDTH,EVBL_PREVIEW_WINDOW_HEIGHT),0,0,cv::INTER_AREA);
+    ui->previewVideo->showImage(output_preview);
 }
 
 
 void eVBL::take_shot()
 {
-    if(!ui->capture_frame->isEnabled()) {
-        return;
-    }
 
-    ui->capture_frame->setDisabled(true);
-    //ui->capture_frame->setEnabled(false);
-    //repaint();
-    //QEventLoop::processEvents(0);
-    qApp->processEvents();
-
-    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_MAX_IMAGE_HEIGHT);
-    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_MAX_IMAGE_WIDTH);
-
-    cv::Mat buffered_snapshot;
-    videoCapture.read(buffered_snapshot);
+    preview_frame.copyTo(buffered_snapshot);
 
     display_capture(buffered_snapshot);
 
-    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_PREVIEW_WINDOW_HEIGHT);
-    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_PREVIEW_WINDOW_WIDTH);
+    //videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_PREVIEW_WINDOW_HEIGHT);
+    //videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_PREVIEW_WINDOW_WIDTH);
     //ui->capture_frame->setEnabled(true);
-    ui->capture_frame->setDisabled(false);
+
 }
 
 void eVBL::display_capture(cv::Mat display)
 {
     cv::Mat output_display;
-    cv::resize(display,output_display,cv::Size(),0.25,0.25,cv::INTER_LINEAR);
+    cv::resize(display,output_display,cv::Size(),0.25,0.25,cv::INTER_CUBIC);
     ui->display_capture_frame->showImage(output_display);
 
 }
