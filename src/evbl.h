@@ -28,6 +28,7 @@ private:
     Ui::eVBL *ui;
 
     cv::VideoCapture videoCapture;
+    cv::Mat buffered_snapshot;
 
 protected:
     void timerEvent(QTimerEvent*);

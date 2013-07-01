@@ -6,6 +6,11 @@
 
 #include <cvimagewidget.h>
 
+#define EVBL_MAX_IMAGE_HEIGHT 1944
+#define EVBL_MAX_IMAGE_WIDTH 2592
+#define EVBL_PREVIEW_WINDOW_HEIGHT 240
+#define EVBL_PREVIEW_WINDOW_WIDTH 320
+
 eVBL::eVBL(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::eVBL)
@@ -14,13 +19,10 @@ eVBL::eVBL(QWidget *parent) :
 
     videoCapture.open(0);
 
+    //qDebug() << videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
+    //qDebug() << videoCapture.get(CV_CAP_PROP_FRAME_WIDTH);
     //set up the video preview screen and start it running
-    /*
-    camera = new QCamera;
-    camera->setViewfinder(ui->viewFinder);
-    camera->start();
 
-    */
     connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
 
 
@@ -32,8 +34,12 @@ eVBL::eVBL(QWidget *parent) :
         ui->device_list->addItem(description);
         qDebug() << description;
     }
+    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_PREVIEW_WINDOW_HEIGHT);
+    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_PREVIEW_WINDOW_WIDTH);
 
-    startTimer(100);
+
+    //set up the video preview screen and start it running
+    startTimer(40);
 
 }
 
@@ -55,15 +61,22 @@ void eVBL::timerEvent(QTimerEvent*) {
 void eVBL::take_shot()
 {
 
+    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 3888);
+    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 5184);
 
-    //videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
-    //videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+    //videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
+    //videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 960);
     //cap.set(CV_CAP_PROP_BRIGHTNESS,128);
     //cap.set(CV_CAP_PROP_CONTRAST,32);
     //cap.set(CV_CAP_PROP_SATURATION,32);
+    qDebug() << videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
+    qDebug() << videoCapture.get(CV_CAP_PROP_FRAME_WIDTH);
 
 
-    cv::Mat frame;
-    videoCapture.read(frame);
-    ui->cvwidget_test->showImage(frame);
+    cv::Mat buffered_snapshot;
+    videoCapture.read(buffered_snapshot);
+    ui->cvwidget_test->showImage(buffered_snapshot);
+
+    videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, EVBL_PREVIEW_WINDOW_HEIGHT);
+    videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, EVBL_PREVIEW_WINDOW_WIDTH);
 }

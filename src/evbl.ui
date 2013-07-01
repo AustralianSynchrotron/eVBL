@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1041</width>
-    <height>745</height>
+    <width>1356</width>
+    <height>790</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,8 +26,8 @@
   <widget class="QPushButton" name="capture_frame">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>230</y>
+     <x>80</x>
+     <y>370</y>
      <width>75</width>
      <height>23</height>
     </rect>
@@ -39,24 +39,52 @@
   <widget class="CVImageWidget" name="cvwidget_test" native="true">
    <property name="geometry">
     <rect>
-     <x>220</x>
+     <x>360</x>
      <y>30</y>
-     <width>811</width>
-     <height>641</height>
+     <width>960</width>
+     <height>720</height>
     </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
    </property>
    <property name="autoFillBackground">
     <bool>true</bool>
    </property>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>960</width>
+      <height>720</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <property name="lineWidth">
+     <number>2</number>
+    </property>
+   </widget>
   </widget>
   <widget class="CVImageWidget" name="previewVideo" native="true">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>30</y>
-     <width>191</width>
-     <height>191</height>
+     <y>40</y>
+     <width>320</width>
+     <height>240</height>
     </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>
