@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+   <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -32,7 +32,7 @@
     </rect>
    </property>
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
      <horstretch>0</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
@@ -48,7 +48,7 @@
    </property>
    <widget class="QWidget" name="capture_tab">
     <property name="sizePolicy">
-     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+     <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
@@ -116,7 +116,7 @@
      <property name="lineWidth">
       <number>2</number>
      </property>
-     <widget class="CVImageWidget" name="display_capture_frame" native="true">
+     <widget class="CVImageWidget" name="captured_display" native="true">
       <property name="geometry">
        <rect>
         <x>2</x>
@@ -502,7 +502,7 @@
       </property>
      </item>
     </widget>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="save_image_button">
      <property name="geometry">
       <rect>
        <x>65</x>
@@ -543,31 +543,14 @@
       </sizepolicy>
      </property>
     </widget>
-    <zorder>device_list</zorder>
-    <zorder>label_7</zorder>
-    <zorder>previewVideo</zorder>
-    <zorder>frame</zorder>
-    <zorder>capture_frame</zorder>
-    <zorder>label_9</zorder>
-    <zorder>label_resolution</zorder>
-    <zorder>zoom_setting</zorder>
-    <zorder>label_11</zorder>
-    <zorder>info_initials</zorder>
-    <zorder>label</zorder>
-    <zorder>label_2</zorder>
-    <zorder>label_5</zorder>
-    <zorder>label_6</zorder>
-    <zorder>combo_objectnumber</zorder>
-    <zorder>info_distance</zorder>
-    <zorder>label_3</zorder>
-    <zorder>combo_object</zorder>
-    <zorder>label_4</zorder>
-    <zorder>combo_wavelength</zorder>
-    <zorder>pushButton</zorder>
-    <zorder>info_school</zorder>
-    <zorder>display_capture_frame</zorder>
    </widget>
    <widget class="QWidget" name="process_tab">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
     <attribute name="title">
      <string>Process</string>
     </attribute>

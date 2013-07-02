@@ -22,17 +22,25 @@ eVBL::eVBL(QWidget *parent) :
     connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
 
 
-
     //populate combo box showing the attached camera devices
+    int cam_no = 0;
     foreach(const QByteArray &deviceName, QCamera::availableDevices())
     {
-        QString description = QCamera::deviceDescription(deviceName);
-        ui->device_list->addItem(description);
+        QString description = QCamera::deviceDescription(deviceName);  //for reading in actual camera type
+        cam_no = cam_no + 1;
+        QString cam_no_str = QString::number(cam_no);
+        ui->device_list->addItem("Detector " + cam_no_str);
+        //ui->device_list->addItem(description);//used to fill combo box with actual camera type
     }
 
-    set_camera(0);
+    set_camera(0);  //use first camera in list
+    startTimer(EVBL_PREVIEW_WINDOW_REFRESH);  //gets the preview video working
 
-    startTimer(EVBL_PREVIEW_WINDOW_REFRESH);
+    int index = ui->zoom_setting->findText("Fit");  //set default zoom to 'fit to window'
+    ui->zoom_setting->setCurrentIndex(index);
+
+
+
 
 }
 
@@ -54,21 +62,48 @@ void eVBL::take_shot()
 
     preview_frame.copyTo(buffered_snapshot);
 
-    display_capture(buffered_snapshot,0.1);
+    display_capture(buffered_snapshot);
 
 }
 
-void eVBL::display_capture(cv::Mat display, float scale_amount )
+void eVBL::display_capture(cv::Mat display)
 {
+    if (display.empty() == true)
+    {
+        return;
+    }
+    float val;
+    QString str_val = ui->zoom_setting->currentText();
+
+    if (str_val == "Fit")
+    {
+        float width_scale = ui->captured_display->width() / videoCapture.get(CV_CAP_PROP_FRAME_WIDTH);
+        float height_scale = ui->captured_display->height() / videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
+
+        if (width_scale <= height_scale)
+        {
+            val = width_scale;
+        }
+        else
+        {
+            val = height_scale;
+        }
+
+    }
+    else
+    {
+        QString strip_val = str_val.replace("%","");
+        val = strip_val.toFloat() / 100.0 ;
+    }
+
     cv::Mat output_display;
-    cv::resize(display,output_display,cv::Size(),scale_amount,scale_amount,cv::INTER_LINEAR);
-    ui->display_capture_frame->showImage(output_display);
+    cv::resize(display,output_display,cv::Size(),val,val,cv::INTER_LINEAR);
+    ui->captured_display->showImage(output_display);
 
 }
 
 void eVBL::set_camera(int index)
 {
-    qDebug() << index;//ui->device_list->currentIndex();
     videoCapture.open(index);//(ui->device_list->currentIndex());
     videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 10000);
     videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 10000);
@@ -85,25 +120,12 @@ void eVBL::on_device_list_currentIndexChanged(int index)
 
 }
 
-void eVBL::on_zoom_setting_currentIndexChanged(const QString &arg1)
+void eVBL::on_zoom_setting_currentIndexChanged()
 {
-    QString str_val = arg1;
-    qDebug() << str_val;
-
-    if (str_val == "Fit")
-    {
-        qDebug() << "fit set";
-    }
-    else
-    {
-        QString strip_val = str_val.replace("%","");
-        float val = strip_val.toFloat() / 100.0 ;
-        display_capture(buffered_snapshot,val);
-    }
-
+    display_capture(buffered_snapshot);
 }
 
-void eVBL::on_pushButton_clicked()
+void eVBL::on_save_image_button_clicked()
 {
     //get text to create auto filename
     QString initials = ui->info_initials->text();
@@ -114,5 +136,16 @@ void eVBL::on_pushButton_clicked()
     QString wavelength = ui->combo_wavelength->currentText();
 
     QString auto_name = school + "_" + initials + "_" + object + "_" + wavelength + "_" + object_number;
-    QFileDialog::getSaveFileName();
+    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",auto_name,tr("Bitmap (*.bmp);;JPEG (*.jpg)"));
+
+    if (savefilename.isEmpty())
+    {
+        qDebug() << "empty";
+    }
+    else
+    {
+        qDebug() << savefilename;
+    }
+    //cv::imwrite(savefilename,buffered_snapshot);
+
 }

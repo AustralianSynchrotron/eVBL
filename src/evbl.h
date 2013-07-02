@@ -25,14 +25,14 @@ private slots:
     void take_shot();
 
     void on_device_list_currentIndexChanged(int index);
-    void on_zoom_setting_currentIndexChanged(const QString &arg1);
+    void on_zoom_setting_currentIndexChanged();
 
-    void on_pushButton_clicked();
+    void on_save_image_button_clicked();
 
 private:
     Ui::eVBL *ui;
 
-    void display_capture(cv::Mat display, float scale_amount);
+    void display_capture(cv::Mat display);
     void set_camera(int index);
 
     cv::VideoCapture videoCapture;
