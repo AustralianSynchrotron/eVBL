@@ -3,8 +3,8 @@
 
 #include <QMainWindow>
 #include <QtMultimedia/QCamera>
-#include <QtMultimediaWidgets/QCameraViewfinder>
-#include <QtMultimedia/QCameraImageCapture>
+#include <QFileDialog>
+
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
@@ -24,10 +24,16 @@ public:
 private slots:
     void take_shot();
 
+    void on_device_list_currentIndexChanged(int index);
+    void on_zoom_setting_currentIndexChanged(const QString &arg1);
+
+    void on_pushButton_clicked();
+
 private:
     Ui::eVBL *ui;
 
-    void display_capture(cv::Mat display);
+    void display_capture(cv::Mat display, float scale_amount);
+    void set_camera(int index);
 
     cv::VideoCapture videoCapture;
     cv::Mat buffered_snapshot;
