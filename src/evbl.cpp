@@ -98,7 +98,6 @@ void eVBL::on_zoom_setting_currentIndexChanged(const QString &arg1)
     {
         QString strip_val = str_val.replace("%","");
         float val = strip_val.toFloat() / 100.0 ;
-        qDebug() << val;
         display_capture(buffered_snapshot,val);
     }
 
@@ -106,5 +105,14 @@ void eVBL::on_zoom_setting_currentIndexChanged(const QString &arg1)
 
 void eVBL::on_pushButton_clicked()
 {
+    //get text to create auto filename
+    QString initials = ui->info_initials->text();
+    QString school = ui->info_school->text();
+    QString distance = ui->info_distance->text();
+    QString object = ui->combo_object->currentText();
+    QString object_number = ui->combo_objectnumber->currentText();
+    QString wavelength = ui->combo_wavelength->currentText();
+
+    QString auto_name = school + "_" + initials + "_" + object + "_" + wavelength + "_" + object_number;
     QFileDialog::getSaveFileName();
 }

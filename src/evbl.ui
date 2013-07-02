@@ -268,6 +268,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="text">
+      <string/>
+     </property>
     </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
@@ -342,7 +345,7 @@
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboBox_2">
+    <widget class="QComboBox" name="combo_objectnumber">
      <property name="geometry">
       <rect>
        <x>250</x>
@@ -420,7 +423,7 @@
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboBox">
+    <widget class="QComboBox" name="combo_object">
      <property name="geometry">
       <rect>
        <x>73</x>
@@ -473,7 +476,7 @@
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
-    <widget class="QComboBox" name="comboBox_3">
+    <widget class="QComboBox" name="combo_wavelength">
      <property name="geometry">
       <rect>
        <x>90</x>
@@ -554,12 +557,12 @@
     <zorder>label_2</zorder>
     <zorder>label_5</zorder>
     <zorder>label_6</zorder>
-    <zorder>comboBox_2</zorder>
+    <zorder>combo_objectnumber</zorder>
     <zorder>info_distance</zorder>
     <zorder>label_3</zorder>
-    <zorder>comboBox</zorder>
+    <zorder>combo_object</zorder>
     <zorder>label_4</zorder>
-    <zorder>comboBox_3</zorder>
+    <zorder>combo_wavelength</zorder>
     <zorder>pushButton</zorder>
     <zorder>info_school</zorder>
     <zorder>display_capture_frame</zorder>
