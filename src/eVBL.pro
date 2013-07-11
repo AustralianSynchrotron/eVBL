@@ -36,5 +36,6 @@ win32 {
     -lopencv_highgui245d \
     -lopencv_imgproc245d \
     -lopencv_features2d245d \
-    -lopencv_calib3d245d
+    -lopencv_calib3d245d \
+    -lopencv_photo245d
 }

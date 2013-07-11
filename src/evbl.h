@@ -23,7 +23,7 @@ public:
 
 private slots:
     void take_shot();
-
+    void multi_shot();
     void on_device_list_currentIndexChanged(int index);
     void on_zoom_setting_currentIndexChanged();
     void recentre_vertical_capture(int min_bar, int max_bar);

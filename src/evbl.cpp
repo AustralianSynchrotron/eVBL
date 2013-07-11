@@ -3,10 +3,12 @@
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
+#include <opencv2/photo/photo.hpp>
 
 #include <cvimagewidget.h>
 
 #include <QScrollBar>
+#include <QThread>
 
 #define EVBL_PREVIEW_WINDOW_HEIGHT 240
 #define EVBL_PREVIEW_WINDOW_WIDTH 320
@@ -23,6 +25,7 @@ eVBL::eVBL(QWidget *parent) :
 
     connect(preview_timer, SIGNAL(timeout()), this, SLOT(update_video()));
     connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
+    connect(ui->multi_button, SIGNAL(clicked()),this, SLOT(multi_shot()));
     connect(ui->scrollArea_Capture->verticalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_vertical_capture(int,int)));
     connect(ui->scrollArea_Capture->horizontalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_horizontal_capture(int,int)));
 
@@ -90,6 +93,27 @@ void eVBL::take_shot()
 
     display_capture(buffered_snapshot);
 
+}
+
+void eVBL::multi_shot()
+{
+
+    int frames = 3;
+
+    cv::Mat *array_of_mats = new cv::Mat[frames];
+    for(int i = 0; i < frames; i++)
+    {
+        qDebug() << i;
+        preview_frame.copyTo(array_of_mats[i]);
+        QThread::sleep(1);
+    }
+
+    cv::fastNlMeansDenoisingColoredMulti(*array_of_mats, buffered_snapshot, frames/2, frames/2);
+    //cv::fastNlMeansDenoisingColoredMulti(*array_of_mats, averaged_image, 5, 5, 3, 3, 6, 21);
+
+    display_capture(buffered_snapshot);
+
+    qDebug() << "pew pew...";
 }
 
 void eVBL::display_capture(cv::Mat display)
