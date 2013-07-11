@@ -20,18 +20,23 @@ To fetch the source code for developing:
 
 3. Compile opencv:
 
-  ```bash
-  cd src/opencv
-  ```
-
   On Windows:
 
-  ```
-  cmake -G "MinGW Makefiles"
+  ```bash
+  cd src/opencv
+  mkdir install\debug
+  mkdir build
+  cd build
+  cmake -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=DEBUG -D CMAKE_INSTALL_PREFIX="%CD%\..\install\debug" ..
+  mingw32-make install
   ```
 
   On Linux/Mac OS X:
   
+  ```bash
+  cd src/opencv
+  mkdir -p install/debug build
+  cd build
+  cmake -D CMAKE_BUILD_TYPE=DEBUG -D CMAKE_INSTALL_PREFIX="$(pwd)/../install/debug" ..
+  make install
   ```
-  cmake CMakeLists.txt
-  ``` 
