@@ -22,12 +22,11 @@ To fetch the source code for developing:
 
   On Windows:
 
-  ```bash
-  cd src/opencv
-  mkdir install\debug
+  ```bat
+  cd src\opencv
   mkdir build
   cd build
-  cmake -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=DEBUG -D CMAKE_INSTALL_PREFIX="%CD%\..\install\debug" ..
+  cmake -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=DEBUG -D BUILD_opencv_python=OFF -D CMAKE_INSTALL_PREFIX="%CD%\..\install\debug" ..
   mingw32-make install
   ```
 
@@ -37,6 +36,6 @@ To fetch the source code for developing:
   cd src/opencv
   mkdir -p install/debug build
   cd build
-  cmake -D CMAKE_BUILD_TYPE=DEBUG -D CMAKE_INSTALL_PREFIX="$(pwd)/../install/debug" ..
+  cmake -D CMAKE_BUILD_TYPE=DEBUG -D BUILD_opencv_python=OFF -D CMAKE_INSTALL_PREFIX="$(pwd)/../install/debug" ..
   make install
   ```
