@@ -19,7 +19,7 @@ eVBL::eVBL(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QTimer *preview_timer = new QTimer(this);
+    preview_timer = new QTimer(this);
 
     connect(preview_timer, SIGNAL(timeout()), this, SLOT(update_video()));
     connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
@@ -61,7 +61,7 @@ void eVBL::on_evbl_tabs_currentChanged(int index)
     {
     case 0:
         //start camera preview
-
+        preview_timer->start(EVBL_PREVIEW_WINDOW_REFRESH);  //gets the preview video working
         break;
     case 1:
         //stop preview camera
