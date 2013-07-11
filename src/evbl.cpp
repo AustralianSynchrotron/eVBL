@@ -107,6 +107,8 @@ void eVBL::set_camera(int index)
     videoCapture.open(index);//(ui->device_list->currentIndex());
     videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 10000);
     videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 10000);
+    qDebug() << videoCapture.get(CV_CAP_PROP_EXPOSURE);
+    qDebug() << videoCapture.get(CV_CAP_PROP_GAIN);
     QString image_height = QString::number(videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT));
     QString image_width = QString::number(videoCapture.get(CV_CAP_PROP_FRAME_WIDTH));
     ui->label_resolution->setText("Size: " + image_width + " x " + image_height + " pixels");
