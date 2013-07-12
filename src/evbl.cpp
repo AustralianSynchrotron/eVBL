@@ -26,8 +26,12 @@ eVBL::eVBL(QWidget *parent) :
     connect(preview_timer, SIGNAL(timeout()), this, SLOT(update_video()));
     connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
     connect(ui->multi_button, SIGNAL(clicked()),this, SLOT(multi_shot()));
+    //set scrollbars to centre captured image when zoom level changes
     connect(ui->scrollArea_Capture->verticalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_vertical_capture(int,int)));
     connect(ui->scrollArea_Capture->horizontalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_horizontal_capture(int,int)));
+    //set scrollbars to centre process image when zoom level changes
+    connect(ui->scrollArea_Analyse->verticalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_vertical_analyse(int,int)));
+    connect(ui->scrollArea_Analyse->horizontalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_horizontal_analyse(int,int)));
 
 
 
@@ -42,11 +46,13 @@ eVBL::eVBL(QWidget *parent) :
         //ui->device_list->addItem(description);//used to fill combo box with actual camera type
     }
 
-    set_camera(ui->device_list->currentIndex());  //use selected camera in list
-    preview_timer->start(EVBL_PREVIEW_WINDOW_REFRESH);  //gets the preview video working
+    set_camera(ui->device_list->currentIndex());            //use selected camera in list
+    preview_timer->start(EVBL_PREVIEW_WINDOW_REFRESH);      //gets the preview video working
 
-    int index = ui->zoom_setting->findText("Fit");  //set default zoom to 'fit to window'
-    ui->zoom_setting->setCurrentIndex(index);
+    int index_c = ui->zoom_setting->findText("Fit");          //set default zoom to 'fit to window'
+    int index_p = ui->zoom_setting_process->findText("Fit");  //same for the process tab window
+    ui->zoom_setting->setCurrentIndex(index_c);
+    ui->zoom_setting_process->setCurrentIndex(index_p);
 
 
 
@@ -156,15 +162,22 @@ void eVBL::display_capture(cv::Mat display)
     ui->captured_display->showImage(output_display);
 
 
-    }
+}
 
 void eVBL::set_camera(int index)
 {
     videoCapture.open(index);//(ui->device_list->currentIndex());
     videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 10000);
     videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 10000);
-    //qDebug() << videoCapture.get(CV_CAP_PROP_EXPOSURE);
-    //qDebug() << videoCapture.get(CV_CAP_PROP_GAIN);
+
+    //initialise exposure and gain settings
+    //qDebug() << "auto" << videoCapture.get(CV_CAP_PROP_AUTO_EXPOSURE);
+    //videoCapture.set(CV_CAP_PROP_AUTO_EXPOSURE,0.0);
+    //qDebug() << "auto" << videoCapture.get(CV_CAP_PROP_AUTO_EXPOSURE);
+    //set_exposure = videoCapture.get(CV_CAP_PROP_EXPOSURE);
+    //set_gain = videoCapture.get(CV_CAP_PROP_GAIN);
+    qDebug() << videoCapture.get(CV_CAP_PROP_EXPOSURE);
+    qDebug() << videoCapture.get(CV_CAP_PROP_GAIN);
     QString image_height = QString::number(videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT));
     QString image_width = QString::number(videoCapture.get(CV_CAP_PROP_FRAME_WIDTH));
     ui->label_resolution->setText("Size: " + image_width + " x " + image_height + " pixels");
@@ -183,6 +196,11 @@ void eVBL::on_zoom_setting_currentIndexChanged()
     display_capture(buffered_snapshot);
 }
 
+void eVBL::on_zoom_setting_process_currentIndexChanged()
+{
+    display_analyse(analyse_image);
+}
+
 void eVBL::on_save_image_button_clicked()
 {
     //get text to create auto filename
@@ -194,7 +212,7 @@ void eVBL::on_save_image_button_clicked()
     QString wavelength = ui->combo_wavelength->currentText();
 
     QString auto_name = school + "_" + initials + "_" + object + "_" + wavelength + "_" + distance + "_" + object_number;
-    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",auto_name,tr("Bitmap (*.bmp);;JPEG (*.jpg)"));
+    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",auto_name,tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
     const char *cv_filesave = ba.data();
     if (savefilename.isEmpty())
@@ -226,4 +244,82 @@ void eVBL::recentre_horizontal_capture(int min_bar, int max_bar)
 
 }
 
+void eVBL::recentre_vertical_analyse(int min_bar, int max_bar)
+{
+    Q_UNUSED(min_bar);
+    //set scroll bar to centre
+    ui->scrollArea_Analyse->verticalScrollBar()->setValue(max_bar/2);
 
+}
+
+void eVBL::recentre_horizontal_analyse(int min_bar, int max_bar)
+{
+    Q_UNUSED(min_bar);
+    //set scrollbar to centre
+    ui->scrollArea_Analyse->horizontalScrollBar()->setValue(max_bar/2);
+
+}
+
+
+void eVBL::on_open_analysis_button_clicked()
+{
+    QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image","",tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QByteArray ba = loadfilename.toUtf8();
+    const char *cv_fileload = ba.data();
+    if (loadfilename.isEmpty())
+    {
+        qDebug() << "empty";
+    }
+    else
+    {
+        qDebug() << cv_fileload;
+        //set file as analyse_image
+        analyse_image = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
+        //push to manipulated_image for editing and display
+        manipulated_image = analyse_image;
+        display_analyse(manipulated_image);
+    }
+
+
+}
+
+void eVBL::display_analyse(cv::Mat display)
+{
+    if (display.empty() == true)
+    {
+        return;
+    }
+    float val;
+    QString str_val = ui->zoom_setting_process->currentText();
+
+    if (str_val == "Fit")
+    {
+        float width_scale = (ui->scrollArea_Analyse->width()-4) / videoCapture.get(CV_CAP_PROP_FRAME_WIDTH);
+        float height_scale = (ui->scrollArea_Analyse->height()-4) / videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
+
+        if (width_scale <= height_scale)
+        {
+            val = width_scale;
+        }
+        else
+        {
+            val = height_scale;
+        }
+
+    }
+    else
+    {
+        QString strip_val = str_val.replace("%","");
+        val = strip_val.toFloat() / 100.0 ;
+    }
+
+    cv::resize(display,analyse_image_displayed,cv::Size(),val,val,cv::INTER_LINEAR);
+
+    float image_width = videoCapture.get(CV_CAP_PROP_FRAME_WIDTH) * val;
+    float image_height = videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT) * val;
+
+    ui->analyse_display->setMinimumSize(image_width,image_height);
+    ui->analyse_display->showImage(analyse_image_displayed);
+
+
+}
