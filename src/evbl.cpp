@@ -294,8 +294,8 @@ void eVBL::display_analyse(cv::Mat display)
 
     if (str_val == "Fit")
     {
-        float width_scale = (ui->scrollArea_Analyse->width()-4) / videoCapture.get(CV_CAP_PROP_FRAME_WIDTH);
-        float height_scale = (ui->scrollArea_Analyse->height()-4) / videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
+        float width_scale = 1;//(ui->scrollArea_Analyse->width()-4) / videoCapture.get(CV_CAP_PROP_FRAME_WIDTH); need to change to loaded image size, not vid cap properties.
+        float height_scale = 1;//(ui->scrollArea_Analyse->height()-4) / videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
 
         if (width_scale <= height_scale)
         {
