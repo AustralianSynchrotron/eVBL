@@ -20,8 +20,8 @@ HEADERS  += evbl.h \
 
 FORMS    += evbl.ui
 
-INCLUDEPATH += opencv\\include
-LIBS += -L$$PWD\\opencv\\lib
+INCLUDEPATH += opencv\\install\\debug\\include
+LIBS += -L$$PWD\\opencv\\install\\debug\\lib
 
 unix {
     LIBS += -lopencv_core \
@@ -32,10 +32,10 @@ unix {
 }
 
 win32 {
-    LIBS += -lopencv_core245d \
-    -lopencv_highgui245d \
-    -lopencv_imgproc245d \
-    -lopencv_features2d245d \
-    -lopencv_calib3d245d \
-    -lopencv_photo245d
+    LIBS += -lopencv_core246d \
+    -lopencv_highgui246d \
+    -lopencv_imgproc246d \
+    -lopencv_features2d246d \
+    -lopencv_calib3d246d \
+    -lopencv_photo246d
 }
