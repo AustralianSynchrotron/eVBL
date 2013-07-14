@@ -50,7 +50,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <property name="usesScrollButtons">
     <bool>true</bool>
@@ -1631,41 +1631,6 @@
                 <property name="frame">
                  <bool>true</bool>
                 </property>
-                <item>
-                 <property name="text">
-                  <string>cherry red</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>frog green</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>smurf blue</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>sunshine yellow</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>snow white</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>midnight black</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>purple plum</string>
-                 </property>
-                </item>
                </widget>
               </item>
               <item>
@@ -2395,13 +2360,16 @@
          <property name="widgetResizable">
           <bool>true</bool>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
          <widget class="QWidget" name="analyse_scrollarea">
           <property name="geometry">
            <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>28</width>
-            <height>18</height>
+            <x>591</x>
+            <y>441</y>
+            <width>16</width>
+            <height>16</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -2410,7 +2378,25 @@
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
           <layout class="QHBoxLayout" name="horizontalLayout_11">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="CVImageWidget" name="analyse_display" native="true">
              <property name="sizePolicy">

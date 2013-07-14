@@ -4,6 +4,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/photo/photo.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <cvimagewidget.h>
 
@@ -13,7 +14,17 @@
 #define EVBL_PREVIEW_WINDOW_HEIGHT 240
 #define EVBL_PREVIEW_WINDOW_WIDTH 320
 #define EVBL_PREVIEW_WINDOW_REFRESH 100
-
+#define COLOUR_ICON_WIDTH 20
+#define COLOUR_ICON_HEIGHT 15
+static QColor red_line = QColor("#DC143C");
+static QColor green_line = QColor("#32CD32");
+static QColor blue_line = QColor("#4169E1");
+static QColor purple_line = QColor("#800080");
+static QColor orange_line = QColor("#FFA500");
+static QColor pink_line = QColor("#FF69B4");
+static QColor yellow_line = QColor("#FFFF00");
+static QColor black_line = QColor("#000000");
+static QColor white_line = QColor("#FFFFFF");
 
 eVBL::eVBL(QWidget *parent) :
     QMainWindow(parent),
@@ -22,6 +33,8 @@ eVBL::eVBL(QWidget *parent) :
     ui->setupUi(this);
 
     preview_timer = new QTimer(this);
+
+    set_combo_line_colour();        //set icon and entries for combo_line_colour on process tab
 
     connect(preview_timer, SIGNAL(timeout()), this, SLOT(update_video()));
     connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
@@ -32,7 +45,8 @@ eVBL::eVBL(QWidget *parent) :
     //set scrollbars to centre process image when zoom level changes
     connect(ui->scrollArea_Analyse->verticalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_vertical_analyse(int,int)));
     connect(ui->scrollArea_Analyse->horizontalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_horizontal_analyse(int,int)));
-
+    //set image manipulation slots
+    connect(ui->check_background, SIGNAL(stateChanged(int)),this, SLOT(apply_manipulations()));
 
 
     //populate combo box showing the attached camera devices
@@ -198,7 +212,7 @@ void eVBL::on_zoom_setting_currentIndexChanged()
 
 void eVBL::on_zoom_setting_process_currentIndexChanged()
 {
-    display_analyse(analyse_image);
+    display_analyse(manipulated_image);
 }
 
 void eVBL::on_save_image_button_clicked()
@@ -276,8 +290,33 @@ void eVBL::on_open_analysis_button_clicked()
         //set file as analyse_image
         analyse_image = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
         //push to manipulated_image for editing and display
-        manipulated_image = analyse_image;
-        display_analyse(manipulated_image);
+            //analyse_image.copyTo(manipulated_image);
+            //display_analyse(manipulated_image);
+        apply_manipulations();
+    }
+
+
+}
+
+void eVBL::on_background_button_clicked()
+{
+    QString loadfilename = QFileDialog::getOpenFileName(this,"Load Background","",tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QByteArray ba = loadfilename.toUtf8();
+    const char *cv_fileload = ba.data();
+    if (loadfilename.isEmpty())
+    {
+        qDebug() << "empty";
+    }
+    else
+    {
+        qDebug() << cv_fileload;
+        //set file as analyse_image
+        background_image = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
+        // if box already checked apply the manipulation
+        if(ui->check_background->isChecked())
+        {
+            apply_manipulations();
+        }
     }
 
 
@@ -292,10 +331,14 @@ void eVBL::display_analyse(cv::Mat display)
     float val;
     QString str_val = ui->zoom_setting_process->currentText();
 
+    cv::Size image_size = display.size();
+    float original_width = image_size.width;
+    float original_height = image_size.height;
+
     if (str_val == "Fit")
     {
-        float width_scale = 1;//(ui->scrollArea_Analyse->width()-4) / videoCapture.get(CV_CAP_PROP_FRAME_WIDTH); need to change to loaded image size, not vid cap properties.
-        float height_scale = 1;//(ui->scrollArea_Analyse->height()-4) / videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
+        float width_scale = (ui->scrollArea_Analyse->width()-4) / original_width;
+        float height_scale = (ui->scrollArea_Analyse->height()-4) / original_height;
 
         if (width_scale <= height_scale)
         {
@@ -315,11 +358,82 @@ void eVBL::display_analyse(cv::Mat display)
 
     cv::resize(display,analyse_image_displayed,cv::Size(),val,val,cv::INTER_LINEAR);
 
-    float image_width = videoCapture.get(CV_CAP_PROP_FRAME_WIDTH) * val;
-    float image_height = videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT) * val;
+    float image_width = original_width * val;
+    float image_height = original_height * val;
 
     ui->analyse_display->setMinimumSize(image_width,image_height);
     ui->analyse_display->showImage(analyse_image_displayed);
 
+
+}
+
+void eVBL::set_combo_line_colour()
+{
+    QPixmap red_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
+    QPixmap green_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
+    QPixmap blue_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
+    QPixmap purple_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
+    QPixmap orange_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
+    QPixmap pink_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
+    QPixmap yellow_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
+    QPixmap black_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
+    QPixmap white_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
+    red_icon.fill(red_line);
+    green_icon.fill(green_line);
+    blue_icon.fill(blue_line);
+    purple_icon.fill(purple_line);
+    orange_icon.fill(orange_line);
+    pink_icon.fill(pink_line);
+    yellow_icon.fill(yellow_line);
+    black_icon.fill(black_line);
+    white_icon.fill(white_line);
+    ui->combo_line_colour->addItem(QIcon(red_icon),"cherry red");
+    ui->combo_line_colour->addItem(QIcon(green_icon),"frog green");
+    ui->combo_line_colour->addItem(QIcon(blue_icon),"smurf blue");
+    ui->combo_line_colour->addItem(QIcon(purple_icon),"purple plum");
+    ui->combo_line_colour->addItem(QIcon(orange_icon),"orange orange");
+    ui->combo_line_colour->addItem(QIcon(pink_icon),"pink hotpants");
+    ui->combo_line_colour->addItem(QIcon(yellow_icon),"sunshine yellow");
+    ui->combo_line_colour->addItem(QIcon(black_icon),"midnight black");
+    ui->combo_line_colour->addItem(QIcon(white_icon),"white snow");
+
+}
+
+void eVBL::apply_manipulations()
+{
+    //apply manipulations to the displayed process image
+
+    //make sure that an image has been opened first
+    if(analyse_image.empty())
+    {
+        return;
+    }
+
+     //apply background subtraction
+    if(ui->check_background->isChecked())
+    {
+       manipulated_image = analyse_image - background_image;
+    }
+    else
+    {
+        analyse_image.copyTo(manipulated_image);
+    }
+
+    //apply invert
+
+    //apply black and white
+    if(ui->check_bw->isChecked())
+    {
+        //manipulated_image.copyTo(temp_img);
+        cv::cvtColor(temp_img,manipulated_image,CV_RGB2GRAY);
+    }
+    //apply crop
+
+    //apply gaussian smooth
+
+
+    //output manipulated image to screen
+
+    display_analyse(manipulated_image);
 
 }
