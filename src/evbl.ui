@@ -50,7 +50,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <property name="usesScrollButtons">
     <bool>true</bool>
@@ -1877,14 +1877,23 @@
                </widget>
               </item>
               <item row="0" column="1">
-               <widget class="QSlider" name="low_slider">
+               <widget class="QSlider" name="slider_low_point">
+                <property name="minimum">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <number>250</number>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
               <item row="0" column="2">
-               <widget class="QSpinBox" name="low_point_spin">
+               <widget class="QSpinBox" name="spin_low_point">
                 <property name="minimumSize">
                  <size>
                   <width>50</width>
@@ -1895,6 +1904,9 @@
                  <font>
                   <pointsize>8</pointsize>
                  </font>
+                </property>
+                <property name="maximum">
+                 <number>250</number>
                 </property>
                </widget>
               </item>
@@ -1911,14 +1923,23 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QSlider" name="high_slider">
+               <widget class="QSlider" name="slider_high_point">
+                <property name="minimum">
+                 <number>5</number>
+                </property>
+                <property name="maximum">
+                 <number>255</number>
+                </property>
+                <property name="value">
+                 <number>255</number>
+                </property>
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
                </widget>
               </item>
               <item row="1" column="2">
-               <widget class="QSpinBox" name="high_point_spin">
+               <widget class="QSpinBox" name="spin_high_point">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                   <horstretch>0</horstretch>
@@ -1935,6 +1956,15 @@
                  <font>
                   <pointsize>8</pointsize>
                  </font>
+                </property>
+                <property name="minimum">
+                 <number>5</number>
+                </property>
+                <property name="maximum">
+                 <number>255</number>
+                </property>
+                <property name="value">
+                 <number>255</number>
                 </property>
                </widget>
               </item>
@@ -1979,7 +2009,7 @@
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout">
                 <item>
-                 <widget class="QCheckBox" name="gaussenable_checkbox">
+                 <widget class="QCheckBox" name="check_gaussian">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -1997,7 +2027,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSpinBox" name="blur_spinbox">
+                 <widget class="QSpinBox" name="spin_gauss">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -2008,6 +2038,12 @@
                    <font>
                     <pointsize>10</pointsize>
                    </font>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>10</number>
                   </property>
                  </widget>
                 </item>

@@ -39,6 +39,7 @@ private slots:
     void on_open_analysis_button_clicked();
     void apply_manipulations();
     void on_background_button_clicked();
+    void checkstate_gauss();
 
 private:
     Ui::eVBL *ui;
@@ -46,6 +47,8 @@ private:
     void display_capture(cv::Mat display);
     void display_analyse(cv::Mat display);
     void set_camera(int index);
+
+    cv::Mat apply_threshold(cv::Mat display);
 
     QTimer *preview_timer;
     cv::VideoCapture videoCapture;

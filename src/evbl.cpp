@@ -16,6 +16,7 @@
 #define EVBL_PREVIEW_WINDOW_REFRESH 100
 #define COLOUR_ICON_WIDTH 20
 #define COLOUR_ICON_HEIGHT 15
+
 static QColor red_line = QColor("#DC143C");
 static QColor green_line = QColor("#32CD32");
 static QColor blue_line = QColor("#4169E1");
@@ -47,7 +48,9 @@ eVBL::eVBL(QWidget *parent) :
     connect(ui->scrollArea_Analyse->horizontalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_horizontal_analyse(int,int)));
     //set image manipulation slots
     connect(ui->check_background, SIGNAL(stateChanged(int)),this, SLOT(apply_manipulations()));
-
+    connect(ui->check_bw, SIGNAL(stateChanged(int)), this, SLOT(apply_manipulations()));
+    connect(ui->check_gaussian, SIGNAL(stateChanged(int)), this, SLOT(apply_manipulations()));
+    connect(ui->spin_gauss, SIGNAL(valueChanged(int)), this, SLOT(checkstate_gauss()));
 
     //populate combo box showing the attached camera devices
     int cam_no = 0;
@@ -56,6 +59,7 @@ eVBL::eVBL(QWidget *parent) :
         QString description = QCamera::deviceDescription(deviceName);  //for reading in actual camera type
         cam_no = cam_no + 1;
         QString cam_no_str = QString::number(cam_no);
+        qDebug() << description;
         ui->device_list->addItem("Detector " + cam_no_str);
         //ui->device_list->addItem(description);//used to fill combo box with actual camera type
     }
@@ -357,9 +361,14 @@ void eVBL::display_analyse(cv::Mat display)
     }
 
     cv::resize(display,analyse_image_displayed,cv::Size(),val,val,cv::INTER_LINEAR);
+    analyse_image_displayed = apply_threshold(analyse_image_displayed);
 
     float image_width = original_width * val;
     float image_height = original_height * val;
+
+
+
+    //analyse_image_displayed = (analyse_image_displayed*pix_val_range)/255 + min_pix_val;
 
     ui->analyse_display->setMinimumSize(image_width,image_height);
     ui->analyse_display->showImage(analyse_image_displayed);
@@ -399,6 +408,18 @@ void eVBL::set_combo_line_colour()
 
 }
 
+void eVBL::checkstate_gauss()
+{
+    if(ui->check_gaussian->isChecked())
+    {
+        apply_manipulations();
+    }
+    else
+    {
+        return;
+    }
+}
+
 void eVBL::apply_manipulations()
 {
     //apply manipulations to the displayed process image
@@ -424,16 +445,45 @@ void eVBL::apply_manipulations()
     //apply black and white
     if(ui->check_bw->isChecked())
     {
-        //manipulated_image.copyTo(temp_img);
-        cv::cvtColor(temp_img,manipulated_image,CV_RGB2GRAY);
+        manipulated_image.copyTo(temp_img);
+        cv::cvtColor(manipulated_image,temp_img,CV_BGR2GRAY);
+        cv::cvtColor(temp_img,manipulated_image,CV_GRAY2BGR);   //****MUST CONVERT BACK TO BGR!!!! or else cvimagewidget will fuck the whole thing
+
     }
     //apply crop
 
     //apply gaussian smooth
 
+    if(ui->check_gaussian->isChecked())
+    {
+        manipulated_image.copyTo(temp_img);
+        int sigma = (ui->spin_gauss->value());
+        qDebug() << sigma;
+        qDebug() << ui->spin_gauss->value();
+        cv::GaussianBlur(temp_img,manipulated_image,cv::Size(),sigma);
+    }
 
     //output manipulated image to screen
 
     display_analyse(manipulated_image);
 
 }
+
+cv::Mat eVBL::apply_threshold(cv::Mat display)
+{
+
+    float min_pix_val = ui->slider_low_point->value();
+    float max_pix_val = ui->slider_high_point->value();
+    float pix_range = max_pix_val - min_pix_val;
+    cv::Mat first_cut;
+    cv::Mat return_img;
+    display.copyTo(first_cut);
+    display.copyTo(return_img);
+    cv::threshold(display,first_cut,min_pix_val,0,cv::THRESH_TOZERO);
+
+    return_img = display;//(display*255)/pix_range + min_pix_val;
+    return(return_img);
+
+
+}
+
