@@ -38,8 +38,11 @@ private slots:
     void on_evbl_tabs_currentChanged(int index);
     void on_open_analysis_button_clicked();
     void apply_manipulations();
+    void apply_smooth_bg();
     void on_background_button_clicked();
-    void checkstate_gauss();
+    void threshold_high();
+    void threshold_low();
+    void on_reset_image_clicked();
 
 private:
     Ui::eVBL *ui;
@@ -48,6 +51,8 @@ private:
     void display_analyse(cv::Mat display);
     void set_camera(int index);
 
+
+
     cv::Mat apply_threshold(cv::Mat display);
 
     QTimer *preview_timer;
@@ -55,7 +60,8 @@ private:
     cv::Mat buffered_snapshot;
     cv::Mat preview_frame;
     cv::Mat output_preview;
-    cv::Mat analyse_image;              //loaded image sitting fresh in buffer ready for resetting
+    cv::Mat analyse_image_saved;        //loaded image sitting fresh in buffer ready for resetting
+    cv::Mat analyse_image;              //loaded image with processor intensive smoothing functions applied
     cv::Mat manipulated_image;          //loaded image altered for editing
     cv::Mat analyse_image_displayed;    //resised version of analyse_image for display in widget
     cv::Mat background_image;           //background image for subtraction

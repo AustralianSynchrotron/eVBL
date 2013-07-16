@@ -47,10 +47,23 @@ eVBL::eVBL(QWidget *parent) :
     connect(ui->scrollArea_Analyse->verticalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_vertical_analyse(int,int)));
     connect(ui->scrollArea_Analyse->horizontalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_horizontal_analyse(int,int)));
     //set image manipulation slots
-    connect(ui->check_background, SIGNAL(stateChanged(int)),this, SLOT(apply_manipulations()));
+    connect(ui->check_background, SIGNAL(stateChanged(int)),this, SLOT(apply_smooth_bg()));
     connect(ui->check_bw, SIGNAL(stateChanged(int)), this, SLOT(apply_manipulations()));
-    connect(ui->check_gaussian, SIGNAL(stateChanged(int)), this, SLOT(apply_manipulations()));
-    connect(ui->spin_gauss, SIGNAL(valueChanged(int)), this, SLOT(checkstate_gauss()));
+    connect(ui->check_gaussian, SIGNAL(stateChanged(int)), this, SLOT(apply_smooth_bg()));
+    connect(ui->spin_gauss, SIGNAL(valueChanged(int)), this, SLOT(apply_smooth_bg()));
+    connect(ui->spin_gauss, SIGNAL(valueChanged(int)), this, SLOT(apply_smooth_bg()));
+    connect(ui->check_invert, SIGNAL(stateChanged(int)), this, SLOT(apply_manipulations()));
+    connect(ui->slider_low_point, SIGNAL(valueChanged(int)), this, SLOT(threshold_low()));
+    connect(ui->spin_low_point, SIGNAL(editingFinished()), this, SLOT(threshold_low()));
+    connect(ui->slider_high_point, SIGNAL(valueChanged(int)), this, SLOT(threshold_high()));
+    connect(ui->spin_high_point, SIGNAL(editingFinished()), this, SLOT(threshold_high()));
+
+
+    //connect sliders and spinners
+    connect(ui->slider_low_point, SIGNAL(valueChanged(int)), ui->spin_low_point, SLOT(setValue(int)));
+    connect(ui->spin_low_point, SIGNAL(valueChanged(int)), ui->slider_low_point, SLOT(setValue(int)));
+    connect(ui->slider_high_point, SIGNAL(valueChanged(int)), ui->spin_high_point, SLOT(setValue(int)));
+    connect(ui->spin_high_point, SIGNAL(valueChanged(int)), ui->slider_high_point, SLOT(setValue(int)));
 
     //populate combo box showing the attached camera devices
     int cam_no = 0;
@@ -292,11 +305,10 @@ void eVBL::on_open_analysis_button_clicked()
     {
         qDebug() << cv_fileload;
         //set file as analyse_image
-        analyse_image = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
-        //push to manipulated_image for editing and display
-            //analyse_image.copyTo(manipulated_image);
-            //display_analyse(manipulated_image);
-        apply_manipulations();
+        analyse_image_saved = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
+        //send to add smooth_background for smoothing and background before display
+        apply_smooth_bg();
+
     }
 
 
@@ -319,7 +331,7 @@ void eVBL::on_background_button_clicked()
         // if box already checked apply the manipulation
         if(ui->check_background->isChecked())
         {
-            apply_manipulations();
+            apply_smooth_bg();
         }
     }
 
@@ -372,8 +384,6 @@ void eVBL::display_analyse(cv::Mat display)
 
     ui->analyse_display->setMinimumSize(image_width,image_height);
     ui->analyse_display->showImage(analyse_image_displayed);
-
-
 }
 
 void eVBL::set_combo_line_colour()
@@ -408,16 +418,38 @@ void eVBL::set_combo_line_colour()
 
 }
 
-void eVBL::checkstate_gauss()
+void eVBL::apply_smooth_bg()
 {
-    if(ui->check_gaussian->isChecked())
-    {
-        apply_manipulations();
-    }
-    else
+
+    if(analyse_image_saved.empty())
     {
         return;
     }
+
+    this->setCursor(Qt::WaitCursor);
+
+    //apply background subtraction
+   if(ui->check_background->isChecked())
+   {
+      analyse_image = analyse_image_saved - background_image;
+   }
+   else
+   {
+       analyse_image_saved.copyTo(analyse_image);
+   }
+
+   //apply gaussian smooth
+
+   if(ui->check_gaussian->isChecked())
+   {
+       analyse_image.copyTo(temp_img);
+       int sigma = (ui->spin_gauss->value());
+       cv::GaussianBlur(analyse_image,analyse_image,cv::Size(),sigma);
+   }
+
+   apply_manipulations();
+
+   this->setCursor(Qt::ArrowCursor);
 }
 
 void eVBL::apply_manipulations()
@@ -429,18 +461,11 @@ void eVBL::apply_manipulations()
     {
         return;
     }
-
-     //apply background subtraction
-    if(ui->check_background->isChecked())
-    {
-       manipulated_image = analyse_image - background_image;
-    }
     else
     {
         analyse_image.copyTo(manipulated_image);
     }
 
-    //apply invert
 
     //apply black and white
     if(ui->check_bw->isChecked())
@@ -450,18 +475,16 @@ void eVBL::apply_manipulations()
         cv::cvtColor(temp_img,manipulated_image,CV_GRAY2BGR);   //****MUST CONVERT BACK TO BGR!!!! or else cvimagewidget will fuck the whole thing
 
     }
-    //apply crop
 
-    //apply gaussian smooth
-
-    if(ui->check_gaussian->isChecked())
+    //apply invert colours
+    if(ui->check_invert->isChecked())
     {
         manipulated_image.copyTo(temp_img);
-        int sigma = (ui->spin_gauss->value());
-        qDebug() << sigma;
-        qDebug() << ui->spin_gauss->value();
-        cv::GaussianBlur(temp_img,manipulated_image,cv::Size(),sigma);
+        manipulated_image =cv::Scalar(255,255,255) - temp_img;
     }
+
+    //apply crop
+
 
     //output manipulated image to screen
 
@@ -469,21 +492,69 @@ void eVBL::apply_manipulations()
 
 }
 
+void eVBL::threshold_high()
+{
+    //test if values are ok
+    float min_pix_val = ui->slider_low_point->value();
+    float max_pix_val = ui->slider_high_point->value();
+    if(max_pix_val - 10 <= min_pix_val)
+    {
+        ui->spin_low_point->setValue(max_pix_val - 10);
+    }
+    if(manipulated_image.empty())
+    {
+        return;
+    }
+    else
+    {
+        apply_threshold(manipulated_image);
+        display_analyse(manipulated_image);
+    }
+}
+
+void eVBL::threshold_low()
+{
+    //test if values are ok
+    float min_pix_val = ui->slider_low_point->value();
+    float max_pix_val = ui->slider_high_point->value();
+    if(max_pix_val - 10 <= min_pix_val)
+    {
+        ui->spin_high_point->setValue(min_pix_val + 10);
+    }
+    if(manipulated_image.empty())
+    {
+        return;
+    }
+    else
+    {
+        apply_threshold(manipulated_image);
+        display_analyse(manipulated_image);
+    }
+}
 cv::Mat eVBL::apply_threshold(cv::Mat display)
 {
 
     float min_pix_val = ui->slider_low_point->value();
     float max_pix_val = ui->slider_high_point->value();
     float pix_range = max_pix_val - min_pix_val;
-    cv::Mat first_cut;
     cv::Mat return_img;
-    display.copyTo(first_cut);
     display.copyTo(return_img);
-    cv::threshold(display,first_cut,min_pix_val,0,cv::THRESH_TOZERO);
-
-    return_img = display;//(display*255)/pix_range + min_pix_val;
+    return_img = (display-min_pix_val)*255/pix_range;//return_img = display;//(display*255)/pix_range + min_pix_val;
     return(return_img);
 
+
+}
+
+void eVBL::on_reset_image_clicked()
+{
+    //clear all manipulations to the image
+    ui->check_gaussian->setChecked(false);
+    ui->check_background->setChecked(false);
+    ui->check_bw->setChecked(false);
+    ui->check_invert->setChecked(false);
+    ui->slider_low_point->setValue(0);
+    ui->slider_high_point->setValue(255);
+    threshold_low();
 
 }
 

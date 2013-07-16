@@ -49,4 +49,6 @@ protected:
 
     QImage _qimage;
     cv::Mat _tmp;
-};
+
+
+  };
