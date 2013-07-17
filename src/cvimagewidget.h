@@ -19,6 +19,7 @@ public:
     QSize sizeHint() const { return _qimage.size(); }
     QSize minimumSizeHint() const { return _qimage.size(); }
 
+
 public slots:
 
     void showImage(const cv::Mat& image) {

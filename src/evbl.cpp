@@ -27,6 +27,8 @@ static QColor yellow_line = QColor("#FFFF00");
 static QColor black_line = QColor("#000000");
 static QColor white_line = QColor("#FFFFFF");
 
+
+
 eVBL::eVBL(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::eVBL)
@@ -34,6 +36,8 @@ eVBL::eVBL(QWidget *parent) :
     ui->setupUi(this);
 
     preview_timer = new QTimer(this);
+
+    QDir::setCurrent(QDir::currentPath());      //set the starting path for the files
 
     set_combo_line_colour();        //set icon and entries for combo_line_colour on process tab
 
@@ -51,14 +55,12 @@ eVBL::eVBL(QWidget *parent) :
     connect(ui->check_bw, SIGNAL(stateChanged(int)), this, SLOT(apply_manipulations()));
     connect(ui->check_gaussian, SIGNAL(stateChanged(int)), this, SLOT(apply_smooth_bg()));
     connect(ui->spin_gauss, SIGNAL(valueChanged(int)), this, SLOT(apply_smooth_bg()));
-    connect(ui->spin_gauss, SIGNAL(valueChanged(int)), this, SLOT(apply_smooth_bg()));
+    //connect(ui->spin_gauss, SIGNAL(valueChanged(int)), ui->check_gaussian, SLOT(setChecked(false));
     connect(ui->check_invert, SIGNAL(stateChanged(int)), this, SLOT(apply_manipulations()));
     connect(ui->slider_low_point, SIGNAL(valueChanged(int)), this, SLOT(threshold_low()));
     connect(ui->spin_low_point, SIGNAL(editingFinished()), this, SLOT(threshold_low()));
     connect(ui->slider_high_point, SIGNAL(valueChanged(int)), this, SLOT(threshold_high()));
     connect(ui->spin_high_point, SIGNAL(editingFinished()), this, SLOT(threshold_high()));
-
-
     //connect sliders and spinners
     connect(ui->slider_low_point, SIGNAL(valueChanged(int)), ui->spin_low_point, SLOT(setValue(int)));
     connect(ui->spin_low_point, SIGNAL(valueChanged(int)), ui->slider_low_point, SLOT(setValue(int)));
@@ -95,7 +97,7 @@ eVBL::~eVBL()
     delete ui;
 }
 
-void eVBL::on_evbl_tabs_currentChanged(int index)
+void eVBL::on_evbl_tabs_currentChanged(int index)   //make changes when new main tab selected
 {
     switch(index)
     {
@@ -114,16 +116,14 @@ void eVBL::on_evbl_tabs_currentChanged(int index)
 
 }
 
-
-void eVBL::update_video() {
+void eVBL::update_video() { //update preview video window. Called from timer function every EVBL_PREVIEW_WINDOW_REFRESH milliseconds
 
     videoCapture.read(preview_frame);
     cv::resize(preview_frame,output_preview,cv::Size(EVBL_PREVIEW_WINDOW_WIDTH,EVBL_PREVIEW_WINDOW_HEIGHT),0,0,cv::INTER_LINEAR);
     ui->previewVideo->showImage(output_preview);
 }
 
-
-void eVBL::take_shot()
+void eVBL::take_shot()  //take single shot from camera
 {
 
     preview_frame.copyTo(buffered_snapshot);
@@ -132,7 +132,7 @@ void eVBL::take_shot()
 
 }
 
-void eVBL::multi_shot()
+void eVBL::multi_shot() //take multiple series of shots and average them
 {
 
     int frames = 3;
@@ -153,7 +153,7 @@ void eVBL::multi_shot()
     qDebug() << "pew pew...";
 }
 
-void eVBL::display_capture(cv::Mat display)
+void eVBL::display_capture(cv::Mat display) //resize and store to buffer image captured from camera
 {
     if (display.empty() == true)
     {
@@ -195,7 +195,7 @@ void eVBL::display_capture(cv::Mat display)
 
 }
 
-void eVBL::set_camera(int index)
+void eVBL::set_camera(int index)    //set the camera parameters when new camera selected
 {
     videoCapture.open(index);//(ui->device_list->currentIndex());
     videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 10000);
@@ -215,25 +215,29 @@ void eVBL::set_camera(int index)
 
 }
 
-void eVBL::on_device_list_currentIndexChanged(int index)
+void eVBL::on_device_list_currentIndexChanged(int index)    //change used camera when selected
 {
     videoCapture.release();
     set_camera(index);
 
 }
 
-void eVBL::on_zoom_setting_currentIndexChanged()
+void eVBL::on_zoom_setting_currentIndexChanged()    //resice capture displayed image on zoom change
 {
     display_capture(buffered_snapshot);
 }
 
-void eVBL::on_zoom_setting_process_currentIndexChanged()
+void eVBL::on_zoom_setting_process_currentIndexChanged()    //resize analyse displayed image on zoom change
 {
     display_analyse(manipulated_image);
 }
 
-void eVBL::on_save_image_button_clicked()
+void eVBL::on_save_image_button_clicked()   //save buffered captured camera image
 {
+    if(buffered_snapshot.empty())
+    {
+        return;
+    }
     //get text to create auto filename
     QString initials = ui->info_initials->text();
     QString school = ui->info_school->text();
@@ -243,7 +247,7 @@ void eVBL::on_save_image_button_clicked()
     QString wavelength = ui->combo_wavelength->currentText();
 
     QString auto_name = school + "_" + initials + "_" + object + "_" + wavelength + "_" + distance + "_" + object_number;
-    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",auto_name,tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + auto_name,tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
     const char *cv_filesave = ba.data();
     if (savefilename.isEmpty())
@@ -255,11 +259,10 @@ void eVBL::on_save_image_button_clicked()
         qDebug() << cv_filesave;
         cv::imwrite(cv_filesave,buffered_snapshot);
     }
-    //cv::imwrite(savefilename,buffered_snapshot);
 
 }
 
-void eVBL::recentre_vertical_capture(int min_bar, int max_bar)
+void eVBL::recentre_vertical_capture(int min_bar, int max_bar)  //cntre capture scroll bar
 {
     Q_UNUSED(min_bar);
     //set scroll bar to centre
@@ -267,7 +270,7 @@ void eVBL::recentre_vertical_capture(int min_bar, int max_bar)
 
 }
 
-void eVBL::recentre_horizontal_capture(int min_bar, int max_bar)
+void eVBL::recentre_horizontal_capture(int min_bar, int max_bar)    //centre capture scroll bar
 {
     Q_UNUSED(min_bar);
     //set scrollbar to centre
@@ -275,7 +278,7 @@ void eVBL::recentre_horizontal_capture(int min_bar, int max_bar)
 
 }
 
-void eVBL::recentre_vertical_analyse(int min_bar, int max_bar)
+void eVBL::recentre_vertical_analyse(int min_bar, int max_bar)  //cetre analyse scroll bar
 {
     Q_UNUSED(min_bar);
     //set scroll bar to centre
@@ -283,7 +286,7 @@ void eVBL::recentre_vertical_analyse(int min_bar, int max_bar)
 
 }
 
-void eVBL::recentre_horizontal_analyse(int min_bar, int max_bar)
+void eVBL::recentre_horizontal_analyse(int min_bar, int max_bar)    //centre analyse scroll bar
 {
     Q_UNUSED(min_bar);
     //set scrollbar to centre
@@ -291,10 +294,9 @@ void eVBL::recentre_horizontal_analyse(int min_bar, int max_bar)
 
 }
 
-
-void eVBL::on_open_analysis_button_clicked()
+void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed in process tab
 {
-    QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image","",tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image",QDir::currentPath(),tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = loadfilename.toUtf8();
     const char *cv_fileload = ba.data();
     if (loadfilename.isEmpty())
@@ -314,20 +316,25 @@ void eVBL::on_open_analysis_button_clicked()
 
 }
 
-void eVBL::on_background_button_clicked()
+void eVBL::on_background_button_clicked()   //load background file and apply to picture if box checked
 {
-    QString loadfilename = QFileDialog::getOpenFileName(this,"Load Background","",tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QString loadfilename = QFileDialog::getOpenFileName(this,"Load Background",QDir::currentPath(),tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = loadfilename.toUtf8();
     const char *cv_fileload = ba.data();
     if (loadfilename.isEmpty())
     {
         qDebug() << "empty";
+
     }
     else
     {
-        qDebug() << cv_fileload;
+        QFile file(loadfilename);
+        QFileInfo fileInfo(file.fileName());
+        QString fileout(fileInfo.fileName());
+
         //set file as analyse_image
         background_image = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
+        ui->label_loaded_background->setText("Loaded Background: " + fileout);
         // if box already checked apply the manipulation
         if(ui->check_background->isChecked())
         {
@@ -338,7 +345,7 @@ void eVBL::on_background_button_clicked()
 
 }
 
-void eVBL::display_analyse(cv::Mat display)
+void eVBL::display_analyse(cv::Mat display) //apply zoom settings and display image in process tab
 {
     if (display.empty() == true)
     {
@@ -386,7 +393,7 @@ void eVBL::display_analyse(cv::Mat display)
     ui->analyse_display->showImage(analyse_image_displayed);
 }
 
-void eVBL::set_combo_line_colour()
+void eVBL::set_combo_line_colour()  //create the combo box for line colours on the analyse screen
 {
     QPixmap red_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
     QPixmap green_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
@@ -418,8 +425,11 @@ void eVBL::set_combo_line_colour()
 
 }
 
-void eVBL::apply_smooth_bg()
+void eVBL::apply_smooth_bg()    //takes the buffered unedited image, applys smoothing functions as analyse_image, then calls apply_manipulations
 {
+    //this stuff can be slow so it is in a separate function from the colour stuff
+    //which can be applied later much quicker.
+    //only want the gaussian smooth to be done when it is really needed.
 
     if(analyse_image_saved.empty())
     {
@@ -452,11 +462,9 @@ void eVBL::apply_smooth_bg()
    this->setCursor(Qt::ArrowCursor);
 }
 
-void eVBL::apply_manipulations()
+void eVBL::apply_manipulations()    //apply the colour enhancement images to the analysed picture- outputs to manipulated_image
 {
-    //apply manipulations to the displayed process image
-
-    //make sure that an image has been opened first
+     //make sure that an image has been opened first
     if(analyse_image.empty())
     {
         return;
@@ -492,7 +500,7 @@ void eVBL::apply_manipulations()
 
 }
 
-void eVBL::threshold_high()
+void eVBL::threshold_high() //check high limit is not lower than low limit, adjust low
 {
     //test if values are ok
     float min_pix_val = ui->slider_low_point->value();
@@ -512,7 +520,7 @@ void eVBL::threshold_high()
     }
 }
 
-void eVBL::threshold_low()
+void eVBL::threshold_low()  //check low limit is not greater than high limit, adjust high
 {
     //test if values are ok
     float min_pix_val = ui->slider_low_point->value();
@@ -531,9 +539,9 @@ void eVBL::threshold_low()
         display_analyse(manipulated_image);
     }
 }
-cv::Mat eVBL::apply_threshold(cv::Mat display)
-{
 
+cv::Mat eVBL::apply_threshold(cv::Mat display)      //add colour thresholds to the image under analysis
+{
     float min_pix_val = ui->slider_low_point->value();
     float max_pix_val = ui->slider_high_point->value();
     float pix_range = max_pix_val - min_pix_val;
@@ -545,9 +553,8 @@ cv::Mat eVBL::apply_threshold(cv::Mat display)
 
 }
 
-void eVBL::on_reset_image_clicked()
+void eVBL::on_reset_image_clicked()     //clear all manipulations to the image
 {
-    //clear all manipulations to the image
     ui->check_gaussian->setChecked(false);
     ui->check_background->setChecked(false);
     ui->check_bw->setChecked(false);
@@ -558,3 +565,35 @@ void eVBL::on_reset_image_clicked()
 
 }
 
+void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, return if not left pressed on analyse_display widget
+{
+    if(ui->analyse_display->underMouse() == false){return;}; //return if not on analyse_display
+    if(event->button() == Qt::RightButton){return;};    //return if right mouse button was clicked
+
+    //test tabs to see what mode
+    switch(ui->anal_type_tab->currentIndex())
+    {
+    case 0:
+        qDebug() << "length tab";
+        break;
+    case 1:
+        qDebug() << "angle tab";
+        break;
+    case 2:
+        qDebug() << "export tab";
+        break;
+    case 3:
+        qDebug() << "crop tab";
+        break;
+    default:
+        qDebug() << "no tab selected ???";
+        break;
+    }
+        mouse_test();
+        qDebug() << QCursor::pos();
+}
+
+void eVBL::mouse_test()
+{
+    qDebug() << "mouse test worked!!";
+}

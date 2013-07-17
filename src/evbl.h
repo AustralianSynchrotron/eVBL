@@ -6,6 +6,8 @@
 #include <QFileDialog>
 #include <QTimer>
 #include <QPixmap>
+#include <QScrollArea>
+#include <QMouseEvent>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
@@ -44,6 +46,7 @@ private slots:
     void threshold_low();
     void on_reset_image_clicked();
 
+
 private:
     Ui::eVBL *ui;
 
@@ -51,7 +54,8 @@ private:
     void display_analyse(cv::Mat display);
     void set_camera(int index);
 
-
+    void mousePressEvent(QMouseEvent *event);
+    void mouse_test();
 
     cv::Mat apply_threshold(cv::Mat display);
 
