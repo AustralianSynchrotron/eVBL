@@ -14,17 +14,10 @@ Developing
 3. Clone the repository:
 
   ```bash
-  git clone https://github.com/AustralianSynchrotron/eVBL.git
+  git clone --recursive https://github.com/AustralianSynchrotron/eVBL.git
   ```
 
-4. Download dependencies:
-
-  ```bash
-  git submodule init
-  git submodule update
-  ```
-
-5. Compile opencv.
+4. Compile opencv.
 
   On Windows:
 
@@ -46,7 +39,7 @@ Developing
   make install
   ```
 
-6. Add to your `PATH` environment variable:
+5. Add to your `PATH` environment variable:
   
   ```bash
   /path/to/project/src/opencv/install/debug/bin
