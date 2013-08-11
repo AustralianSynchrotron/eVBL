@@ -1355,7 +1355,7 @@
                <enum>QFrame::Box</enum>
               </property>
               <property name="text">
-               <string>0.0mm</string>
+               <string>--.-- mm</string>
               </property>
              </widget>
             </widget>
@@ -1405,7 +1405,7 @@
                <enum>QFrame::Box</enum>
               </property>
               <property name="text">
-               <string>0</string>
+               <string>--</string>
               </property>
              </widget>
              <widget class="QGroupBox" name="angle_units_group">
@@ -1446,9 +1446,9 @@
               </layout>
              </widget>
             </widget>
-            <widget class="QWidget" name="export_tab">
+            <widget class="QWidget" name="intensity_tab">
              <attribute name="title">
-              <string>Export</string>
+              <string>Intensity</string>
              </attribute>
              <widget class="QSlider" name="rotate_slider">
               <property name="geometry">
@@ -1671,7 +1671,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox">
+               <widget class="QComboBox" name="combo_line_thickness">
                 <property name="minimumSize">
                  <size>
                   <width>30</width>

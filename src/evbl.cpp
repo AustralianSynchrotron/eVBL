@@ -16,17 +16,22 @@
 #define EVBL_PREVIEW_WINDOW_REFRESH 100
 #define COLOUR_ICON_WIDTH 20
 #define COLOUR_ICON_HEIGHT 15
+#define MM_PER_PIXEL 0.1376
+#define INTENSITY_LINE_LENGTH 1024
+#define PI 3.14159265358979323846264338327950288419717
 
-static QColor red_line = QColor("#DC143C");
-static QColor green_line = QColor("#32CD32");
-static QColor blue_line = QColor("#4169E1");
-static QColor purple_line = QColor("#800080");
-static QColor orange_line = QColor("#FFA500");
-static QColor pink_line = QColor("#FF69B4");
-static QColor yellow_line = QColor("#FFFF00");
-static QColor black_line = QColor("#000000");
-static QColor white_line = QColor("#FFFFFF");
-
+static int red_line[3] = {220,20,60};
+static int green_line[3] = {50,205,50};
+static int blue_line[3] = {65,105,255};
+static int purple_line[3] = {128,0,128};
+static int orange_line[3] = {255,165,0};
+static int pink_line[3] = {255,105,180};
+static int yellow_line[3] = {255,255,0};
+static int black_line[3] = {0,0,0};
+static int white_line[3] = {255,255,255};
+static int length_line[4] = {-1,-1,-1,-1};
+static int angle_line[6] = {-1,-1,-1,-1,-1,-1};
+static float intensity_line[3] = {600,600,0.5};
 
 
 eVBL::eVBL(QWidget *parent) :
@@ -55,7 +60,6 @@ eVBL::eVBL(QWidget *parent) :
     connect(ui->check_bw, SIGNAL(stateChanged(int)), this, SLOT(apply_manipulations()));
     connect(ui->check_gaussian, SIGNAL(stateChanged(int)), this, SLOT(apply_smooth_bg()));
     connect(ui->spin_gauss, SIGNAL(valueChanged(int)), this, SLOT(apply_smooth_bg()));
-    //connect(ui->spin_gauss, SIGNAL(valueChanged(int)), ui->check_gaussian, SLOT(setChecked(false));
     connect(ui->check_invert, SIGNAL(stateChanged(int)), this, SLOT(apply_manipulations()));
     connect(ui->slider_low_point, SIGNAL(valueChanged(int)), this, SLOT(threshold_low()));
     connect(ui->spin_low_point, SIGNAL(editingFinished()), this, SLOT(threshold_low()));
@@ -80,12 +84,15 @@ eVBL::eVBL(QWidget *parent) :
     }
 
     set_camera(ui->device_list->currentIndex());            //use selected camera in list
-    preview_timer->start(EVBL_PREVIEW_WINDOW_REFRESH);      //gets the preview video working
-
+    if (ui->device_list->currentIndex() != -1)              //ignore if no cameras connected
+    {
+        preview_timer->start(EVBL_PREVIEW_WINDOW_REFRESH);      //gets the preview video working
+    }
     int index_c = ui->zoom_setting->findText("Fit");          //set default zoom to 'fit to window'
     int index_p = ui->zoom_setting_process->findText("Fit");  //same for the process tab window
     ui->zoom_setting->setCurrentIndex(index_c);
     ui->zoom_setting_process->setCurrentIndex(index_p);
+    ui->combo_line_thickness->setCurrentIndex(1);           //set default line thickness to 2 pixels
 
 
 
@@ -103,7 +110,10 @@ void eVBL::on_evbl_tabs_currentChanged(int index)   //make changes when new main
     {
     case 0:
         //start camera preview
-        preview_timer->start(EVBL_PREVIEW_WINDOW_REFRESH);  //gets the preview video working
+        if (ui->device_list->currentIndex() != -1)          //ignore if no cameras connected
+        {
+            preview_timer->start(EVBL_PREVIEW_WINDOW_REFRESH);  //gets the preview video working
+        }
         break;
     case 1:
         //stop preview camera
@@ -197,6 +207,11 @@ void eVBL::display_capture(cv::Mat display) //resize and store to buffer image c
 
 void eVBL::set_camera(int index)    //set the camera parameters when new camera selected
 {
+    if(index == -1)
+    {
+        qDebug() << "no camera";
+        return;
+    }
     videoCapture.open(index);//(ui->device_list->currentIndex());
     videoCapture.set(CV_CAP_PROP_FRAME_HEIGHT, 10000);
     videoCapture.set(CV_CAP_PROP_FRAME_WIDTH, 10000);
@@ -311,9 +326,9 @@ void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed
         //send to add smooth_background for smoothing and background before display
         apply_smooth_bg();
 
+        //create copy for analyse overlay
+        analyse_image_saved.copyTo(analyse_overlay);
     }
-
-
 }
 
 void eVBL::on_background_button_clicked()   //load background file and apply to picture if box checked
@@ -344,6 +359,7 @@ void eVBL::on_background_button_clicked()   //load background file and apply to 
 
 
 }
+
 
 void eVBL::display_analyse(cv::Mat display) //apply zoom settings and display image in process tab
 {
@@ -395,6 +411,7 @@ void eVBL::display_analyse(cv::Mat display) //apply zoom settings and display im
 
 void eVBL::set_combo_line_colour()  //create the combo box for line colours on the analyse screen
 {
+    //set icon sizes
     QPixmap red_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
     QPixmap green_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
     QPixmap blue_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
@@ -404,15 +421,17 @@ void eVBL::set_combo_line_colour()  //create the combo box for line colours on t
     QPixmap yellow_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
     QPixmap black_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
     QPixmap white_icon(COLOUR_ICON_WIDTH,COLOUR_ICON_HEIGHT);
-    red_icon.fill(red_line);
-    green_icon.fill(green_line);
-    blue_icon.fill(blue_line);
-    purple_icon.fill(purple_line);
-    orange_icon.fill(orange_line);
-    pink_icon.fill(pink_line);
-    yellow_icon.fill(yellow_line);
-    black_icon.fill(black_line);
-    white_icon.fill(white_line);
+    //colour in icons
+    red_icon.fill(QColor(red_line[0],red_line[1],red_line[2]));
+    green_icon.fill(QColor(green_line[0],green_line[1],green_line[2]));
+    blue_icon.fill(QColor(blue_line[0],blue_line[1],blue_line[2]));
+    purple_icon.fill(QColor(purple_line[0],purple_line[1],purple_line[2]));
+    orange_icon.fill(QColor(orange_line[0],orange_line[1],orange_line[2]));
+    pink_icon.fill(QColor(pink_line[0],pink_line[1],pink_line[2]));
+    yellow_icon.fill(QColor(yellow_line[0],yellow_line[1],yellow_line[2]));
+    black_icon.fill(QColor(black_line[0],black_line[1],black_line[2]));
+    white_icon.fill(QColor(white_line[0],white_line[1],white_line[2]));
+    //populate combo box with icons and text
     ui->combo_line_colour->addItem(QIcon(red_icon),"cherry red");
     ui->combo_line_colour->addItem(QIcon(green_icon),"frog green");
     ui->combo_line_colour->addItem(QIcon(blue_icon),"smurf blue");
@@ -422,8 +441,46 @@ void eVBL::set_combo_line_colour()  //create the combo box for line colours on t
     ui->combo_line_colour->addItem(QIcon(yellow_icon),"sunshine yellow");
     ui->combo_line_colour->addItem(QIcon(black_icon),"midnight black");
     ui->combo_line_colour->addItem(QIcon(white_icon),"white snow");
-
+    line_colour = cv::Scalar(red_line[2],red_line[1],red_line[0]);
 }
+
+void eVBL::on_combo_line_colour_currentIndexChanged(int index)
+{
+    switch(index)
+    {
+    case 0: //red_line
+        line_colour = cv::Scalar(red_line[2],red_line[1],red_line[0]);
+        break;
+    case 1: //green_line
+        line_colour = cv::Scalar(green_line[2],green_line[1],green_line[0]);
+        break;
+    case 2: //blue_line
+        line_colour = cv::Scalar(blue_line[2],blue_line[1],blue_line[0]);
+        break;
+    case 3: //purple_line
+        line_colour = cv::Scalar(purple_line[2],purple_line[1],purple_line[0]);
+        break;
+    case 4: //orange_line
+        line_colour = cv::Scalar(orange_line[2],orange_line[1],orange_line[0]);
+        break;
+    case 5: //pink_line
+        line_colour = cv::Scalar(pink_line[2],pink_line[1],pink_line[0]);
+        break;
+    case 6: //yellow_line
+        line_colour = cv::Scalar(yellow_line[2],yellow_line[1],yellow_line[0]);
+        break;
+    case 7: //black_line
+        line_colour = cv::Scalar(black_line[2],black_line[1],black_line[0]);
+        break;
+    case 8: //white_line
+        line_colour = cv::Scalar(white_line[2],white_line[1],white_line[0]);
+        break;
+    default: //grey line as default
+        cv::Scalar(40,40,40);
+        break;
+    }
+}
+
 
 void eVBL::apply_smooth_bg()    //takes the buffered unedited image, applys smoothing functions as analyse_image, then calls apply_manipulations
 {
@@ -565,22 +622,108 @@ void eVBL::on_reset_image_clicked()     //clear all manipulations to the image
 
 }
 
+void eVBL::on_anal_type_tab_currentChanged(int index)
+{
+    switch(index)
+    {
+    case 0: //length
+        draw_length_line();
+        return;
+    case 1: //angle
+        draw_angle_line();
+        return;
+    case 2: //intensity
+        draw_intensity_line();
+        break;
+    case 3: //crop
+        qDebug() << "crop";
+        break;
+    default:
+        qDebug() << "?";
+        break;
+    }
+}
+
 void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, return if not left pressed on analyse_display widget
 {
     if(ui->analyse_display->underMouse() == false){return;}; //return if not on analyse_display
     if(event->button() == Qt::RightButton){return;};    //return if right mouse button was clicked
 
+    QPoint coord = QCursor::pos();      //coordinates relative to whole screen
+    QPoint localcoord = ui->analyse_display->mapFromGlobal(coord);  //coordinates in the actual image widget
+    cv::Size a = analyse_image_saved.size();
+    cv::Size b = analyse_image_displayed.size();
+    float c = a.width;
+    float d = b.width;
+    float scale = c/d;
+    int click_x = localcoord.rx()*scale;
+    int click_y = localcoord.ry()*scale;
+
     //test tabs to see what mode
     switch(ui->anal_type_tab->currentIndex())
     {
-    case 0:
-        qDebug() << "length tab";
+    case 0:                                                         //length tab currently selected
+        //check if click on a box
+            //if so quit
+        //check if no clicks yet
+        if(length_line[0] == -1)    //set first point only
+        {
+            length_line[0] = click_x;
+            length_line[1] = click_y;
+            draw_length_line();
+            return;
+        }
+         if(length_line[2] == -1)   //set second point
+        {
+            length_line[2] = click_x;
+            length_line[3] = click_y;
+            draw_length_line();
+            return;
+        }
+        else                        //set new line
+        {
+            length_line[0] = click_x;
+            length_line[1] = click_y;
+            length_line[2] = -1;
+            length_line[3] = -1;
+            draw_length_line();
+        }
         break;
-    case 1:
-        qDebug() << "angle tab";
+    case 1:                                                         //angle tab selected
+        if(angle_line[0] == -1)     //set first point
+        {
+            angle_line[0] = click_x;
+            angle_line[1] = click_y;
+            draw_angle_line();
+            return;
+        }
+        if(angle_line[2] == -1)     //set to second point only
+        {
+            angle_line[2] = click_x;
+            angle_line[3] = click_y;
+            draw_angle_line();
+            return;
+        }
+        if(angle_line[4] == -1)     //complete angle line
+        {
+            angle_line[4] = click_x;
+            angle_line[5] = click_y;
+            draw_angle_line();
+            return;
+        }
+        else                        //set new angle line
+        {
+            angle_line[0] = click_x;
+            angle_line[1] = click_y;
+            angle_line[2] = -1;
+            angle_line[3] = -1;
+            angle_line[4] = -1;
+            angle_line[5] = -1;
+            draw_angle_line();
+        }
         break;
-    case 2:
-        qDebug() << "export tab";
+    case 2:                                                         //intensity tab selected
+        draw_intensity_line();
         break;
     case 3:
         qDebug() << "crop tab";
@@ -589,11 +732,156 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
         qDebug() << "no tab selected ???";
         break;
     }
-        mouse_test();
-        qDebug() << QCursor::pos();
+
+
 }
 
-void eVBL::mouse_test()
+void eVBL::draw_length_line()
 {
-    qDebug() << "mouse test worked!!";
+
+    if(length_line[0] == -1)
+    {
+        display_analyse(manipulated_image);
+        ui->measured_distance->setText("--.-- mm");
+        return;
+    }
+    manipulated_image.copyTo(analyse_overlay);
+    draw_box(analyse_overlay,length_line[0],length_line[1]);
+    //check if second click yet
+    if(length_line[2] == -1)
+    {
+        display_analyse(analyse_overlay);
+        ui->measured_distance->setText("--.-- mm");
+        return;
+    }
+    draw_box(analyse_overlay,length_line[2],length_line[3]);
+    draw_line(analyse_overlay,length_line[0],length_line[1],length_line[2],length_line[3]);
+    float val = qSqrt(qPow((length_line[2]-length_line[0]),2) + qPow((length_line[3]-length_line[1]),2)) * MM_PER_PIXEL;
+    QString str = QString::number(val) + " mm";
+    ui->measured_distance->setText(str);
+
+    display_analyse(analyse_overlay);
+}
+
+void eVBL::draw_angle_line()
+{
+    if(angle_line[0] == -1)
+    {
+        display_analyse(manipulated_image);
+        ui->angle_measurement->setText("--");
+        return;
+    }
+    manipulated_image.copyTo(analyse_overlay);
+    draw_box(analyse_overlay,angle_line[0],angle_line[1]);
+    //check if mid point yet
+    if(angle_line[2] == -1)
+    {
+        display_analyse(analyse_overlay);
+        ui->angle_measurement->setText("--");
+        return;
+    }
+    draw_circle(analyse_overlay,angle_line[2],angle_line[3]);
+    draw_line(analyse_overlay,angle_line[0],angle_line[1],angle_line[2],angle_line[3]);
+    if(angle_line[4] == -1)
+    {
+        display_analyse(analyse_overlay);
+        ui->angle_measurement->setText("--");
+        return;
+    }
+    draw_box(analyse_overlay,angle_line[4],angle_line[5]);
+    draw_line(analyse_overlay,angle_line[2],angle_line[3],angle_line[4],angle_line[5]);
+    show_angle();
+    display_analyse(analyse_overlay);
+}
+
+void eVBL::show_angle()     //calculate and display angle measurement
+{
+    if(angle_line[4] == -1)  //return if line not fully defined
+    {
+        ui->angle_measurement->setText("--");
+        return;
+    }
+    QString str = "--";
+    float x1 = angle_line[0] - angle_line[2];
+    float y1 = angle_line[1] - angle_line[3];
+    float x2 = angle_line[4] - angle_line[2];
+    float y2 = angle_line[5] - angle_line[3];
+    float cos_ang = ((x1 * x2) + (y1 * y2))/(qSqrt((x1 * x1)+(y1 * y1)) * qSqrt((x2 * x2) + (y2 * y2)));
+
+    if(ui->radio_degrees->isChecked())
+    {
+       float ang = qAcos(cos_ang) * 180 / PI;
+       str = QString::number(ang,'f',2) + "°";
+    }
+    if(ui->radio_radians->isChecked())
+    {
+        float ang = qAcos(cos_ang);
+        str = QString::number(ang,'f',4) + " rad";
+    }
+    ui->angle_measurement->setText(str);
+
+}
+
+void eVBL::draw_intensity_line() //draw intensity profile line
+{
+    //calculate end points for line at angle defined by intensity[2]
+    int x1 = intensity_line[0] - INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+    int x2 = intensity_line[0] + INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+    int y1 = intensity_line[1] + INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+    int y2 = intensity_line[1] - INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+
+    draw_box(analyse_overlay, intensity_line[0],intensity_line[1]); //draw centre box
+    draw_circle(analyse_overlay,x1,y1);
+    draw_circle(analyse_overlay,x2,y2);
+    draw_line(analyse_overlay,x1,y1,x2,y2);
+    display_analyse(analyse_overlay);
+    get_intensity_profile();
+}
+
+void eVBL::get_intensity_profile()  //get intensity profile along intensity line
+{
+    cv::cvtColor(manipulated_image,greyscale_analyse,CV_BGR2GRAY);  //make greyscale version for intensity
+   //loop over all points
+    for(int i=0; i<=INTENSITY_LINE_LENGTH;i++)
+    {
+        int x = intensity_line[0] - (INTENSITY_LINE_LENGTH/2 - i) * qCos(intensity_line[2]);
+        int y = intensity_line[1] + (INTENSITY_LINE_LENGTH/2 - i) * qSin(intensity_line[2]);
+        int intensity = greyscale_analyse.at<uchar>(y,x);
+        qDebug() << i << x << y << intensity;
+    }
+
+}
+
+void eVBL::draw_box(cv::Mat img, int x_point, int y_point)  //draw box around specified point
+{
+    int x1 = x_point - 10;
+    int x2 = x_point + 10;
+    int y1 = y_point - 10;
+    int y2 = y_point + 10;
+    int line_thickness = ui->combo_line_thickness->currentText().toInt();
+    qDebug() << x_point << y_point;
+
+    cv::rectangle(img, cv::Point(x1,y1),cv::Point(x2,y2),line_colour,line_thickness,8,0);
+}
+
+void eVBL::draw_line(cv::Mat img, int x1, int y1, int x2, int y2)   //draw line between specified coordinates
+{
+    int line_thickness = ui->combo_line_thickness->currentText().toInt();
+
+    cv::line(img, cv::Point(x1,y1),cv::Point(x2,y2),line_colour,line_thickness,8,0);
+}
+
+void eVBL::draw_circle(cv::Mat img, int x_point, int y_point)   //draw circle around specified point
+{
+    int line_thickness = ui->combo_line_thickness->currentText().toInt();
+    int radius = 10;
+
+    cv::circle(img, cv::Point(x_point, y_point), radius, line_colour, line_thickness, 8, 0);
+}
+
+
+
+void eVBL::on_radio_degrees_toggled(bool checked)
+{
+    show_angle();
 }
