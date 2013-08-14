@@ -95,6 +95,7 @@ private:
     cv::Mat temp_img;                   //temp Mat for immediate fucking about with
     cv::Mat greyscale_analyse;         //greyscale version for intensity profile
     cv::Mat intensity_preview;          //plot of intensity profile
+    cv::Mat intensity_preview_resized;  //shrunk version of preview
     cv::Scalar line_colour;             //set colour of the analyse image lines
 
 

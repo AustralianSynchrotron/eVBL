@@ -1130,24 +1130,25 @@ void eVBL::draw_intensity_line() //draw intensity profile line
 void eVBL::get_intensity_profile()  //get intensity profile along intensity line
 {
     cv::cvtColor(manipulated_image,greyscale_analyse,CV_BGR2GRAY);  //make greyscale version for intensity
-    intensity_preview = cv::Mat::zeros(1024,255,CV_8UC3);    //create matrix for preview
+    intensity_preview = cv::Mat::zeros(255,1024,CV_8UC3);    //create matrix for preview
     cv::Point intensity_polyline[1][INTENSITY_LINE_LENGTH]; //define points
    //loop over all points
+
     for(int i=0; i<=INTENSITY_LINE_LENGTH;i++)
     {
         int x = intensity_line[0] - (INTENSITY_LINE_LENGTH/2 - i) * qCos(intensity_line[2]);
         int y = intensity_line[1] + (INTENSITY_LINE_LENGTH/2 - i) * qSin(intensity_line[2]);
         int intensity = greyscale_analyse.at<uchar>(y,x);
         intensity_polyline[0][i] = cv::Point(i,intensity);
+        cv::line(intensity_preview,cv::Point(i,255),cv::Point(i,255-intensity),cv::Scalar(255,255,255),1,8,0);
         //qDebug() << i << x << y << intensity;
     }
+    int image_width = ui->intensity_display->width();
+    int image_height = ui->intensity_display->height();
+    //cv::resize(display,analyse_image_displayed,cv::Size(),val,val,cv::INTER_LINEAR);
+    cv::resize(intensity_preview,intensity_preview_resized,cv::Size(image_width,image_height),0,0,cv::INTER_LINEAR);
 
-    const cv::Point* ppt[1] = { intensity_polyline[0] };
-    int npt[] = { INTENSITY_LINE_LENGTH };
-
-    //cv::PolyLine(intensity_preview,ppt,npt,1,cv::Scalar(255,255,255),8);
-
-    ui->intensity_display->showImage(intensity_preview);
+    ui->intensity_display->showImage(intensity_preview_resized);
 
 
 
