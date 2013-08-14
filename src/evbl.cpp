@@ -31,7 +31,8 @@ static int black_line[3] = {0,0,0};
 static int white_line[3] = {255,255,255};
 static int length_line[4] = {-1,-1,-1,-1};
 static int angle_line[6] = {-1,-1,-1,-1,-1,-1};
-static float intensity_line[3] = {600,600,0.5};
+static float intensity_line[3] = {-1,-1,0.0};
+static int box_grab = 0;
 
 
 eVBL::eVBL(QWidget *parent) :
@@ -70,6 +71,9 @@ eVBL::eVBL(QWidget *parent) :
     connect(ui->spin_low_point, SIGNAL(valueChanged(int)), ui->slider_low_point, SLOT(setValue(int)));
     connect(ui->slider_high_point, SIGNAL(valueChanged(int)), ui->spin_high_point, SLOT(setValue(int)));
     connect(ui->spin_high_point, SIGNAL(valueChanged(int)), ui->slider_high_point, SLOT(setValue(int)));
+    //connect(ui->rotate_slider, SIGNAL(sliderMoved(int)), this, SLOT(change_rotate_spinbox(int)));
+    connect(ui->rotate_slider, SIGNAL(valueChanged(int)), this, SLOT(change_rotate_spinbox(int)));
+    connect(ui->rotate_spinbox, SIGNAL(valueChanged(double)), this, SLOT(change_rotate_slider(double)));
 
     //populate combo box showing the attached camera devices
     int cam_no = 0;
@@ -244,7 +248,7 @@ void eVBL::on_zoom_setting_currentIndexChanged()    //resice capture displayed i
 
 void eVBL::on_zoom_setting_process_currentIndexChanged()    //resize analyse displayed image on zoom change
 {
-    display_analyse(manipulated_image);
+    apply_overlay_lines(); //display_analyse(manipulated_image);
 }
 
 void eVBL::on_save_image_button_clicked()   //save buffered captured camera image
@@ -309,6 +313,20 @@ void eVBL::recentre_horizontal_analyse(int min_bar, int max_bar)    //centre ana
 
 }
 
+void eVBL::change_rotate_slider(double val)                         //change double value of rotate spinbox when slider moved
+{
+    intensity_line[2] = val * PI / 180;
+    draw_intensity_line();
+    double set_val = val * 10.0;
+    ui->rotate_slider->setValue(set_val);
+}
+
+void eVBL::change_rotate_spinbox(int val)                           //change int value of rotate slider when spinbox changed
+{
+    double set_val = static_cast<double>(val) / 10.0;
+    ui->rotate_spinbox->setValue(set_val);
+}
+
 void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed in process tab
 {
     QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image",QDir::currentPath(),tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
@@ -316,7 +334,7 @@ void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed
     const char *cv_fileload = ba.data();
     if (loadfilename.isEmpty())
     {
-        qDebug() << "empty";
+        return;
     }
     else
     {
@@ -338,8 +356,7 @@ void eVBL::on_background_button_clicked()   //load background file and apply to 
     const char *cv_fileload = ba.data();
     if (loadfilename.isEmpty())
     {
-        qDebug() << "empty";
-
+       return;
     }
     else
     {
@@ -356,10 +373,7 @@ void eVBL::on_background_button_clicked()   //load background file and apply to 
             apply_smooth_bg();
         }
     }
-
-
 }
-
 
 void eVBL::display_analyse(cv::Mat display) //apply zoom settings and display image in process tab
 {
@@ -479,6 +493,7 @@ void eVBL::on_combo_line_colour_currentIndexChanged(int index)
         cv::Scalar(40,40,40);
         break;
     }
+    apply_overlay_lines();  //redraw
 }
 
 
@@ -531,14 +546,12 @@ void eVBL::apply_manipulations()    //apply the colour enhancement images to the
         analyse_image.copyTo(manipulated_image);
     }
 
-
     //apply black and white
     if(ui->check_bw->isChecked())
     {
         manipulated_image.copyTo(temp_img);
         cv::cvtColor(manipulated_image,temp_img,CV_BGR2GRAY);
         cv::cvtColor(temp_img,manipulated_image,CV_GRAY2BGR);   //****MUST CONVERT BACK TO BGR!!!! or else cvimagewidget will fuck the whole thing
-
     }
 
     //apply invert colours
@@ -547,13 +560,11 @@ void eVBL::apply_manipulations()    //apply the colour enhancement images to the
         manipulated_image.copyTo(temp_img);
         manipulated_image =cv::Scalar(255,255,255) - temp_img;
     }
-
     //apply crop
 
 
     //output manipulated image to screen
-
-    display_analyse(manipulated_image);
+    apply_overlay_lines();
 
 }
 
@@ -573,7 +584,7 @@ void eVBL::threshold_high() //check high limit is not lower than low limit, adju
     else
     {
         apply_threshold(manipulated_image);
-        display_analyse(manipulated_image);
+        apply_overlay_lines();
     }
 }
 
@@ -593,7 +604,7 @@ void eVBL::threshold_low()  //check low limit is not greater than high limit, ad
     else
     {
         apply_threshold(manipulated_image);
-        display_analyse(manipulated_image);
+        apply_overlay_lines();
     }
 }
 
@@ -604,14 +615,22 @@ cv::Mat eVBL::apply_threshold(cv::Mat display)      //add colour thresholds to t
     float pix_range = max_pix_val - min_pix_val;
     cv::Mat return_img;
     display.copyTo(return_img);
-    return_img = (display-min_pix_val)*255/pix_range;//return_img = display;//(display*255)/pix_range + min_pix_val;
+    return_img = (display-min_pix_val)*255/pix_range;
     return(return_img);
-
-
 }
 
 void eVBL::on_reset_image_clicked()     //clear all manipulations to the image
 {
+    //reset drawn lines
+    length_line[0] = -1;
+    length_line[2] = -1;
+    angle_line[0] = -1;
+    angle_line[2] = -1;
+    angle_line[4] = -1;
+    intensity_line[0] = -1;
+    intensity_line[2] = 0.0;
+    box_grab = 0;
+
     ui->check_gaussian->setChecked(false);
     ui->check_background->setChecked(false);
     ui->check_bw->setChecked(false);
@@ -622,26 +641,14 @@ void eVBL::on_reset_image_clicked()     //clear all manipulations to the image
 
 }
 
+void eVBL::on_combo_line_thickness_currentIndexChanged(int index)
+{
+    apply_overlay_lines();
+}
+
 void eVBL::on_anal_type_tab_currentChanged(int index)
 {
-    switch(index)
-    {
-    case 0: //length
-        draw_length_line();
-        return;
-    case 1: //angle
-        draw_angle_line();
-        return;
-    case 2: //intensity
-        draw_intensity_line();
-        break;
-    case 3: //crop
-        qDebug() << "crop";
-        break;
-    default:
-        qDebug() << "?";
-        break;
-    }
+    apply_overlay_lines();
 }
 
 void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, return if not left pressed on analyse_display widget
@@ -658,13 +665,12 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
     float scale = c/d;
     int click_x = localcoord.rx()*scale;
     int click_y = localcoord.ry()*scale;
+    int x1, x2, y1, y2;
 
     //test tabs to see what mode
     switch(ui->anal_type_tab->currentIndex())
     {
     case 0:                                                         //length tab currently selected
-        //check if click on a box
-            //if so quit
         //check if no clicks yet
         if(length_line[0] == -1)    //set first point only
         {
@@ -680,8 +686,18 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
             draw_length_line();
             return;
         }
-        else                        //set new line
+        else                        //check if box clicked or set new line
         {
+             if ((qSqrt(qPow(click_x-length_line[0],2))) <= 10 && (qSqrt(qPow(click_y-length_line[1],2)) <= 10))    //box 1 clicked
+             {
+                 box_grab = 1;
+                 return;
+             }
+             if ((qSqrt(qPow(click_x-length_line[2],2))) <= 10 && (qSqrt(qPow(click_y-length_line[3],2)) <= 10))    //box 2 clicked
+             {
+                 box_grab = 2;
+                 return;
+             }
             length_line[0] = click_x;
             length_line[1] = click_y;
             length_line[2] = -1;
@@ -711,8 +727,23 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
             draw_angle_line();
             return;
         }
-        else                        //set new angle line
+        else                        //check if box clicked or set new angle line
         {
+            if ((qSqrt(qPow(click_x-angle_line[0],2))) <= 10 && (qSqrt(qPow(click_y-angle_line[1],2)) <= 10))    //box 1 clicked
+            {
+                box_grab = 1;
+                return;
+            }
+            if ((qSqrt(qPow(click_x-angle_line[2],2))) <= 10 && (qSqrt(qPow(click_y-angle_line[3],2)) <= 10))    //circle clicked
+            {
+                box_grab = 2;
+                return;
+            }
+            if ((qSqrt(qPow(click_x-angle_line[4],2))) <= 10 && (qSqrt(qPow(click_y-angle_line[5],2)) <= 10))    //box 2 clicked
+            {
+                box_grab = 3;
+                return;
+            }
             angle_line[0] = click_x;
             angle_line[1] = click_y;
             angle_line[2] = -1;
@@ -723,6 +754,56 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
         }
         break;
     case 2:                                                         //intensity tab selected
+        x1 = click_x - INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+        x2 = click_x + INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+        y1 = click_y + INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+        y2 = click_y - INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+
+        //test if grabbed box
+        if ((qSqrt(qPow(click_x-(intensity_line[0]- INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2])),2))) <= 10 && (qSqrt(qPow(click_y-(intensity_line[1]+ INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2])),2)) <= 10))    //box 1 clicked
+        {
+            box_grab = 1;
+            return;
+        }
+        if ((qSqrt(qPow(click_x-intensity_line[0],2))) <= 10 && (qSqrt(qPow(click_y-intensity_line[1],2)) <= 10))    //circle clicked
+        {
+            box_grab = 2;
+            return;
+        }
+        if ((qSqrt(qPow(click_x-(intensity_line[0]+ INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2])),2))) <= 10 && (qSqrt(qPow(click_y-(intensity_line[1]- INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2])),2)) <= 10))    //box 2 clicked
+        {
+            box_grab = 3;
+            return;
+        }
+
+        //test extents
+        if(x1 < 0)
+        {
+            click_x = INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+        }
+        if(x2 > a.width)
+        {
+            click_x = a.width - INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+        }
+        if(y1 > a.height)
+        {
+            click_y = a.height - INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+        }
+        if(y2 < 0)
+        {
+            click_y = INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+        }
+        if(y2 > a.height)
+        {
+            click_y = a.height + INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+        }
+        if(y1 < 0)
+        {
+            click_y = -1*(INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]));
+        }
+
+        intensity_line[0] = click_x;
+        intensity_line[1] = click_y;
         draw_intensity_line();
         break;
     case 3:
@@ -732,8 +813,205 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
         qDebug() << "no tab selected ???";
         break;
     }
+}
 
+void eVBL::apply_overlay_lines()   //add lines to analyse overlay
+{
+    int index = ui->anal_type_tab->currentIndex();
 
+    switch(index)
+    {
+    case 0: //length
+        draw_length_line();
+        return;
+    case 1: //angle
+        draw_angle_line();
+        return;
+    case 2: //intensity
+        draw_intensity_line();
+        break;
+    case 3: //crop
+        qDebug() << "crop";
+        break;
+    default:
+        qDebug() << "?";
+        break;
+    }
+}
+
+void eVBL::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::RightButton){return;};    //return if right mouse button was released
+    box_grab = 0;   //set box to ungrabbed mode when button released
+
+    if(ui->anal_type_tab->currentIndex() == 2)  //test if intensity line tab selected, and readjust box if out of bounds
+    {
+        int x1 = intensity_line[0] - INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+        int x2 = intensity_line[0] + INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+        int y1 = intensity_line[1] + INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+        int y2 = intensity_line[1] - INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+        cv::Size a = analyse_image_saved.size();
+
+        //test extents
+        if(x1 < 0)
+        {
+            intensity_line[0] = intensity_line[0] - x1;
+        }
+        if(x2 > a.width)
+        {
+            intensity_line[0] = intensity_line[0] - (x2 - a.width);
+        }
+        if(y1 > a.height)
+        {
+            intensity_line[1] = intensity_line[1] - (y1 - a.height);
+        }
+        if(y2 < 0)
+        {
+            intensity_line[1] = intensity_line[1] - y2;
+        }
+        if(y2 > a.height)
+        {
+            intensity_line[1] = intensity_line[1] - (y2 - a.height);
+        }
+        if(y1 < 0)
+        {
+            intensity_line[1] = intensity_line[1] - y1;
+        }
+    draw_intensity_line();
+    get_intensity_profile();
+    }
+}
+
+void eVBL::mouseMoveEvent(QMouseEvent *event)
+{
+    if(ui->analyse_display->underMouse() == false){return;}; //return if not on analyse_display
+    if(event->button() == Qt::RightButton){return;};    //return if right mouse button was clicked
+
+    QPoint coord = QCursor::pos();      //coordinates relative to whole screen
+    QPoint localcoord = ui->analyse_display->mapFromGlobal(coord);  //coordinates in the actual image widget
+    cv::Size a = analyse_image_saved.size();
+    cv::Size b = analyse_image_displayed.size();
+    float c = a.width;
+    float d = b.width;
+    float scale = c/d;
+    int click_x = localcoord.rx()*scale;
+    int click_y = localcoord.ry()*scale;
+    float dist, ang;
+
+    //test if at edge boundaries
+    if(click_x < 0)
+    {
+        click_x = 0;
+    }
+    if(click_x > c)
+    {
+        click_x = a.width;
+    }
+    if(click_y < 0)
+    {
+        click_y = 0;
+    }
+    if(click_y > a.height)
+    {
+        click_y = a.height;
+    }
+
+    //test tabs to see what mode
+    switch(ui->anal_type_tab->currentIndex())
+    {
+    case 0: //move length line
+        if(box_grab == 0)
+        {
+            return;
+        }
+        if(box_grab == 1)
+        {
+            length_line[0] = click_x;
+            length_line[1] = click_y;
+            draw_length_line();
+        }
+        if(box_grab == 2)
+        {
+            length_line[2] = click_x;
+            length_line[3] = click_y;
+            draw_length_line();
+        }
+        break;
+    case 1: //move angle line
+        if(box_grab == 0)
+        {
+            return;
+        }
+        if(box_grab == 1)
+        {
+            angle_line[0] = click_x;
+            angle_line[1] = click_y;
+            draw_angle_line();
+        }
+        if(box_grab == 2)
+        {
+            angle_line[2] = click_x;
+            angle_line[3] = click_y;
+            draw_angle_line();
+        }
+        if(box_grab == 3)
+        {
+            angle_line[4] = click_x;
+            angle_line[5] = click_y;
+            draw_angle_line();
+        }
+        break;
+    case 2: //move intensity line
+        if(box_grab == 0)
+        {
+            return;
+        }
+        if(box_grab == 1)   //grabbed left anchor
+        {
+            dist = qSqrt( qPow((intensity_line[0] - click_x),2) + qPow((intensity_line[1] - click_y),2));
+            if(click_x <= intensity_line[0])
+            {
+                ang = qAsin((click_y - intensity_line[1])/dist);
+            }
+            else
+            {
+                ang = -1 * (qAsin((click_y - intensity_line[1])/dist));
+            }
+                intensity_line[2] = ang;
+                ui->rotate_spinbox->setValue(ang * 180 / PI);
+                draw_intensity_line();
+                return;
+        }
+        if(box_grab == 3)   //grabbed right anchor
+        {
+            dist = qSqrt( qPow((intensity_line[0] - click_x),2) + qPow((intensity_line[1] - click_y),2));
+            if(click_x <= intensity_line[0])
+            {
+                ang = qAsin((click_y - intensity_line[1])/dist);
+            }
+            else
+            {
+                ang = -1 * (qAsin((click_y - intensity_line[1])/dist));
+            }
+                intensity_line[2] = ang;
+                ui->rotate_spinbox->setValue(ang * 180 / PI);
+                draw_intensity_line();
+                return;
+        }
+        if(box_grab == 2)   //grabbed middle
+        {
+            intensity_line[0] = click_x;
+            intensity_line[1] = click_y;
+            draw_intensity_line();
+        }
+        break;
+    case 3: //move crop line
+        qDebug() << "mouse tracking";
+        break;
+    default:
+        qDebug() << "??";
+        break;
+    }
 }
 
 void eVBL::draw_length_line()
@@ -824,31 +1102,55 @@ void eVBL::show_angle()     //calculate and display angle measurement
 
 void eVBL::draw_intensity_line() //draw intensity profile line
 {
+    //test if null
+    if(intensity_line[0] == -1)
+    {
+        cv::Size size = manipulated_image.size();
+        intensity_line[0] = size.width/2;
+        intensity_line[1] = size.height/2;
+        intensity_line[2] = 0.0;
+    }
+
+    manipulated_image.copyTo(analyse_overlay);
     //calculate end points for line at angle defined by intensity[2]
     int x1 = intensity_line[0] - INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
     int x2 = intensity_line[0] + INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
     int y1 = intensity_line[1] + INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
     int y2 = intensity_line[1] - INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
 
+
     draw_box(analyse_overlay, intensity_line[0],intensity_line[1]); //draw centre box
     draw_circle(analyse_overlay,x1,y1);
     draw_circle(analyse_overlay,x2,y2);
     draw_line(analyse_overlay,x1,y1,x2,y2);
     display_analyse(analyse_overlay);
-    get_intensity_profile();
+    //get_intensity_profile();
 }
 
 void eVBL::get_intensity_profile()  //get intensity profile along intensity line
 {
     cv::cvtColor(manipulated_image,greyscale_analyse,CV_BGR2GRAY);  //make greyscale version for intensity
+    intensity_preview = cv::Mat::zeros(1024,255,CV_8UC3);    //create matrix for preview
+    cv::Point intensity_polyline[1][INTENSITY_LINE_LENGTH]; //define points
    //loop over all points
     for(int i=0; i<=INTENSITY_LINE_LENGTH;i++)
     {
         int x = intensity_line[0] - (INTENSITY_LINE_LENGTH/2 - i) * qCos(intensity_line[2]);
         int y = intensity_line[1] + (INTENSITY_LINE_LENGTH/2 - i) * qSin(intensity_line[2]);
         int intensity = greyscale_analyse.at<uchar>(y,x);
-        qDebug() << i << x << y << intensity;
+        intensity_polyline[0][i] = cv::Point(i,intensity);
+        //qDebug() << i << x << y << intensity;
     }
+
+    const cv::Point* ppt[1] = { intensity_polyline[0] };
+    int npt[] = { INTENSITY_LINE_LENGTH };
+
+    //cv::PolyLine(intensity_preview,ppt,npt,1,cv::Scalar(255,255,255),8);
+
+    ui->intensity_display->showImage(intensity_preview);
+
+
+
 
 }
 
@@ -859,7 +1161,6 @@ void eVBL::draw_box(cv::Mat img, int x_point, int y_point)  //draw box around sp
     int y1 = y_point - 10;
     int y2 = y_point + 10;
     int line_thickness = ui->combo_line_thickness->currentText().toInt();
-    qDebug() << x_point << y_point;
 
     cv::rectangle(img, cv::Point(x1,y1),cv::Point(x2,y2),line_colour,line_thickness,8,0);
 }
@@ -885,3 +1186,4 @@ void eVBL::on_radio_degrees_toggled(bool checked)
 {
     show_angle();
 }
+

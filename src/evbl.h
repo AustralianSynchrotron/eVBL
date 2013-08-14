@@ -36,6 +36,8 @@ private slots:
     void recentre_horizontal_capture(int min_bar, int max_bar);
     void recentre_vertical_analyse(int min_bar, int max_bar);
     void recentre_horizontal_analyse(int min_bar, int max_bar);
+    void change_rotate_spinbox(int val);
+    void change_rotate_slider(double val);
     void on_save_image_button_clicked();
     void update_video();
     void on_evbl_tabs_currentChanged(int index);
@@ -51,12 +53,16 @@ private slots:
     void show_angle();
     void draw_intensity_line();
     void get_intensity_profile();
+    void apply_overlay_lines();
 
     void on_combo_line_colour_currentIndexChanged(int index);
 
     void on_anal_type_tab_currentChanged(int index);
 
     void on_radio_degrees_toggled(bool checked);
+
+
+    void on_combo_line_thickness_currentIndexChanged(int index);
 
 private:
     Ui::eVBL *ui;
@@ -66,9 +72,12 @@ private:
     void set_camera(int index);
 
     void mousePressEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
     void draw_box(cv::Mat img, int x_point, int y_point);
     void draw_line(cv::Mat img, int x1, int y1, int x2, int y2);
     void draw_circle(cv::Mat img, int x_point, int y_point);
+
 
     cv::Mat apply_threshold(cv::Mat display);
 
@@ -85,7 +94,9 @@ private:
     cv::Mat analyse_overlay;             //overlay for analyse measurments
     cv::Mat temp_img;                   //temp Mat for immediate fucking about with
     cv::Mat greyscale_analyse;         //greyscale version for intensity profile
+    cv::Mat intensity_preview;          //plot of intensity profile
     cv::Scalar line_colour;             //set colour of the analyse image lines
+
 
 protected:
     //void timerEvent(QTimerEvent*);
