@@ -56,7 +56,7 @@
     </size>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <property name="usesScrollButtons">
     <bool>true</bool>
@@ -1286,7 +1286,7 @@
              </font>
             </property>
             <property name="currentIndex">
-             <number>2</number>
+             <number>3</number>
             </property>
             <widget class="QWidget" name="length_tab">
              <property name="autoFillBackground">
@@ -1600,14 +1600,46 @@
              <widget class="QPushButton" name="crop_button">
               <property name="geometry">
                <rect>
-                <x>10</x>
-                <y>20</y>
+                <x>260</x>
+                <y>150</y>
                 <width>121</width>
-                <height>41</height>
+                <height>31</height>
                </rect>
               </property>
               <property name="text">
-               <string>Crop</string>
+               <string>Save Cropped</string>
+              </property>
+             </widget>
+             <widget class="QLabel" name="label">
+              <property name="geometry">
+               <rect>
+                <x>80</x>
+                <y>160</y>
+                <width>171</width>
+                <height>16</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Save cropped version of image</string>
+              </property>
+             </widget>
+             <widget class="QLabel" name="label_2">
+              <property name="geometry">
+               <rect>
+                <x>20</x>
+                <y>20</y>
+                <width>321</width>
+                <height>51</height>
+               </rect>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>Click image to set centre of region to be cropped.
+Grab centre of box to reposition.</string>
               </property>
              </widget>
             </widget>

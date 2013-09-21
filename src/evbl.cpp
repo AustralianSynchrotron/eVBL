@@ -10,6 +10,7 @@
 
 #include <QScrollBar>
 #include <QThread>
+#include <QClipboard>
 
 #define EVBL_PREVIEW_WINDOW_HEIGHT 240
 #define EVBL_PREVIEW_WINDOW_WIDTH 320
@@ -18,6 +19,7 @@
 #define COLOUR_ICON_HEIGHT 15
 #define MM_PER_PIXEL 0.1376
 #define INTENSITY_LINE_LENGTH 1024
+#define CROP_BOX_SIZE 1024
 #define PI 3.14159265358979323846264338327950288419717
 
 static int red_line[3] = {220,20,60};
@@ -32,7 +34,9 @@ static int white_line[3] = {255,255,255};
 static int length_line[4] = {-1,-1,-1,-1};
 static int angle_line[6] = {-1,-1,-1,-1,-1,-1};
 static float intensity_line[3] = {-1,-1,0.0};
+static int crop_box_line[2] = {-1,-1};
 static int box_grab = 0;
+static int intensity_profile[INTENSITY_LINE_LENGTH];    //the profile of the intensity in values 0-255
 
 
 eVBL::eVBL(QWidget *parent) :
@@ -98,9 +102,6 @@ eVBL::eVBL(QWidget *parent) :
     ui->zoom_setting_process->setCurrentIndex(index_p);
     ui->combo_line_thickness->setCurrentIndex(1);           //set default line thickness to 2 pixels
 
-
-
-
 }
 
 eVBL::~eVBL()
@@ -127,11 +128,10 @@ void eVBL::on_evbl_tabs_currentChanged(int index)   //make changes when new main
         break;
     }
 
-
 }
 
-void eVBL::update_video() { //update preview video window. Called from timer function every EVBL_PREVIEW_WINDOW_REFRESH milliseconds
-
+void eVBL::update_video()  //update preview video window. Called from timer function every EVBL_PREVIEW_WINDOW_REFRESH milliseconds
+{
     videoCapture.read(preview_frame);
     cv::resize(preview_frame,output_preview,cv::Size(EVBL_PREVIEW_WINDOW_WIDTH,EVBL_PREVIEW_WINDOW_HEIGHT),0,0,cv::INTER_LINEAR);
     ui->previewVideo->showImage(output_preview);
@@ -139,38 +139,40 @@ void eVBL::update_video() { //update preview video window. Called from timer fun
 
 void eVBL::take_shot()  //take single shot from camera
 {
+    if (ui->device_list->currentIndex() == -1){return;}   //ignore if no cameras connected
 
     preview_frame.copyTo(buffered_snapshot);
-
     display_capture(buffered_snapshot);
 
 }
 
 void eVBL::multi_shot() //take multiple series of shots and average them
 {
+    if (ui->device_list->currentIndex() == -1){return;}   //ignore if no cameras connected
 
-    int frames = 3;
-
-    cv::Mat *array_of_mats = new cv::Mat[frames];
+    int frames = 10;
+    cv::Mat averaged_image;
+    display_capture(preview_frame);
+    averaged_image = preview_frame/frames;
     for(int i = 0; i < frames; i++)
     {
+        update_video();
         qDebug() << i;
-        preview_frame.copyTo(array_of_mats[i]);
-        QThread::sleep(1);
+        display_capture(preview_frame);
+        averaged_image += preview_frame/frames;
     }
-
-    cv::fastNlMeansDenoisingColoredMulti(*array_of_mats, buffered_snapshot, frames/2, frames/2);
-    //cv::fastNlMeansDenoisingColoredMulti(*array_of_mats, averaged_image, 5, 5, 3, 3, 6, 21);
-
+    averaged_image.copyTo(buffered_snapshot);
     display_capture(buffered_snapshot);
 
     qDebug() << "pew pew...";
 }
 
+
 void eVBL::display_capture(cv::Mat display) //resize and store to buffer image captured from camera
 {
     if (display.empty() == true)
     {
+        qDebug() << "empty frame";
         return;
     }
     float val;
@@ -243,7 +245,10 @@ void eVBL::on_device_list_currentIndexChanged(int index)    //change used camera
 
 void eVBL::on_zoom_setting_currentIndexChanged()    //resice capture displayed image on zoom change
 {
+    if(buffered_snapshot.empty() == false)
+    {
     display_capture(buffered_snapshot);
+    }
 }
 
 void eVBL::on_zoom_setting_process_currentIndexChanged()    //resize analyse displayed image on zoom change
@@ -410,7 +415,6 @@ void eVBL::display_analyse(cv::Mat display) //apply zoom settings and display im
     }
 
     cv::resize(display,analyse_image_displayed,cv::Size(),val,val,cv::INTER_LINEAR);
-    analyse_image_displayed = apply_threshold(analyse_image_displayed);
 
     float image_width = original_width * val;
     float image_height = original_height * val;
@@ -564,8 +568,13 @@ void eVBL::apply_manipulations()    //apply the colour enhancement images to the
 
 
     //output manipulated image to screen
-    apply_overlay_lines();
+    manipulated_image = apply_threshold(manipulated_image);
 
+    apply_overlay_lines();
+    if(ui->anal_type_tab->currentIndex() == 2)
+    {
+        get_intensity_profile();
+    }
 }
 
 void eVBL::threshold_high() //check high limit is not lower than low limit, adjust low
@@ -577,15 +586,8 @@ void eVBL::threshold_high() //check high limit is not lower than low limit, adju
     {
         ui->spin_low_point->setValue(max_pix_val - 10);
     }
-    if(manipulated_image.empty())
-    {
-        return;
-    }
-    else
-    {
-        apply_threshold(manipulated_image);
-        apply_overlay_lines();
-    }
+   apply_manipulations();
+
 }
 
 void eVBL::threshold_low()  //check low limit is not greater than high limit, adjust high
@@ -597,15 +599,7 @@ void eVBL::threshold_low()  //check low limit is not greater than high limit, ad
     {
         ui->spin_high_point->setValue(min_pix_val + 10);
     }
-    if(manipulated_image.empty())
-    {
-        return;
-    }
-    else
-    {
-        apply_threshold(manipulated_image);
-        apply_overlay_lines();
-    }
+    apply_manipulations();
 }
 
 cv::Mat eVBL::apply_threshold(cv::Mat display)      //add colour thresholds to the image under analysis
@@ -641,7 +635,7 @@ void eVBL::on_reset_image_clicked()     //clear all manipulations to the image
 
 }
 
-void eVBL::on_combo_line_thickness_currentIndexChanged(int index)
+void eVBL::on_combo_line_thickness_currentIndexChanged()
 {
     apply_overlay_lines();
 }
@@ -649,6 +643,10 @@ void eVBL::on_combo_line_thickness_currentIndexChanged(int index)
 void eVBL::on_anal_type_tab_currentChanged(int index)
 {
     apply_overlay_lines();
+    if(index == 2)  //if intensity tab selected
+    {
+        get_intensity_profile();
+    }
 }
 
 void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, return if not left pressed on analyse_display widget
@@ -663,7 +661,7 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
     float c = a.width;
     float d = b.width;
     float scale = c/d;
-    int click_x = localcoord.rx()*scale;
+    int click_x = localcoord.rx()*scale;    //coords of image ignoring scaling factors of display
     int click_y = localcoord.ry()*scale;
     int x1, x2, y1, y2;
 
@@ -753,7 +751,7 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
             draw_angle_line();
         }
         break;
-    case 2:                                                         //intensity tab selected
+    case 2:   //intensity tab selected
         x1 = click_x - INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
         x2 = click_x + INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
         y1 = click_y + INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
@@ -806,8 +804,39 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
         intensity_line[1] = click_y;
         draw_intensity_line();
         break;
-    case 3:
-        qDebug() << "crop tab";
+    case 3: //crop tab selected
+        x1 = click_x - CROP_BOX_SIZE/2;
+        x2 = click_x + CROP_BOX_SIZE/2;
+        y1 = click_y - CROP_BOX_SIZE/2;
+        y2 = click_y + CROP_BOX_SIZE/2;
+
+        //test if grabbed centre
+        if(qSqrt(qPow((click_x-crop_box_line[0]),2)) <= 10 && qSqrt(qPow((click_y-crop_box_line[1]),2)))
+        {
+            box_grab = 1;
+            return;
+        }
+
+        //test extents
+        if(x1 < 0)
+        {
+            click_x = CROP_BOX_SIZE/2;
+        }
+        if(x2 > a.width)
+        {
+            click_x = a.width - CROP_BOX_SIZE/2;
+        }
+        if(y1 < 0)
+        {
+            click_y = CROP_BOX_SIZE/2;
+        }
+        if(y2 > a.height)
+        {
+            click_y = a.height - CROP_BOX_SIZE/2;
+        }
+        crop_box_line[0] = click_x;
+        crop_box_line[1] = click_y;
+        draw_crop_box();
         break;
     default:
         qDebug() << "no tab selected ???";
@@ -831,7 +860,7 @@ void eVBL::apply_overlay_lines()   //add lines to analyse overlay
         draw_intensity_line();
         break;
     case 3: //crop
-        qDebug() << "crop";
+        draw_crop_box();
         break;
     default:
         qDebug() << "?";
@@ -880,6 +909,7 @@ void eVBL::mouseReleaseEvent(QMouseEvent *event)
     draw_intensity_line();
     get_intensity_profile();
     }
+
 }
 
 void eVBL::mouseMoveEvent(QMouseEvent *event)
@@ -1006,6 +1036,37 @@ void eVBL::mouseMoveEvent(QMouseEvent *event)
         }
         break;
     case 3: //move crop line
+        if(box_grab == 0)
+        {
+            return;
+        }
+        if(box_grab == 1)
+        {
+            int x1 = click_x - CROP_BOX_SIZE/2;
+            int x2 = click_x + CROP_BOX_SIZE/2;
+            int y1 = click_y - CROP_BOX_SIZE/2;
+            int y2 = click_y + CROP_BOX_SIZE/2;
+           //test extents
+            if(x1 < 0)
+            {
+                click_x = CROP_BOX_SIZE/2;
+            }
+            if(x2 > a.width)
+            {
+                click_x = a.width - CROP_BOX_SIZE/2;
+            }
+            if(y1 < 0)
+            {
+                click_y = CROP_BOX_SIZE/2;
+            }
+            if(y2 > a.height)
+            {
+                click_y = a.height - CROP_BOX_SIZE/2;
+            }
+            crop_box_line[0] = click_x;
+            crop_box_line[1] = click_y;
+            draw_crop_box();
+        }
         qDebug() << "mouse tracking";
         break;
     default:
@@ -1100,7 +1161,7 @@ void eVBL::show_angle()     //calculate and display angle measurement
 
 }
 
-void eVBL::draw_intensity_line() //draw intensity profile line
+void eVBL::draw_intensity_line() //draw intensity profile line over top of image
 {
     //test if null
     if(intensity_line[0] == -1)
@@ -1129,30 +1190,55 @@ void eVBL::draw_intensity_line() //draw intensity profile line
 
 void eVBL::get_intensity_profile()  //get intensity profile along intensity line
 {
+    //make sure image loaded
+    if(manipulated_image.empty())
+    {
+        return;
+    }
     cv::cvtColor(manipulated_image,greyscale_analyse,CV_BGR2GRAY);  //make greyscale version for intensity
-    intensity_preview = cv::Mat::zeros(255,1024,CV_8UC3);    //create matrix for preview
+    intensity_preview = cv::Mat::zeros(256,1024,CV_8UC3);    //create matrix for preview
     cv::Point intensity_polyline[1][INTENSITY_LINE_LENGTH]; //define points
-   //loop over all points
 
+    //loop over all points
     for(int i=0; i<=INTENSITY_LINE_LENGTH;i++)
     {
         int x = intensity_line[0] - (INTENSITY_LINE_LENGTH/2 - i) * qCos(intensity_line[2]);
         int y = intensity_line[1] + (INTENSITY_LINE_LENGTH/2 - i) * qSin(intensity_line[2]);
         int intensity = greyscale_analyse.at<uchar>(y,x);
+        intensity_profile[i] = intensity;   //save intensity value to buffer array
         intensity_polyline[0][i] = cv::Point(i,intensity);
-        cv::line(intensity_preview,cv::Point(i,255),cv::Point(i,255-intensity),cv::Scalar(255,255,255),1,8,0);
-        //qDebug() << i << x << y << intensity;
+        cv::line(intensity_preview,cv::Point(i,256),cv::Point(i,256-intensity),cv::Scalar(200,255,200),1,8,0);
     }
     int image_width = ui->intensity_display->width();
     int image_height = ui->intensity_display->height();
-    //cv::resize(display,analyse_image_displayed,cv::Size(),val,val,cv::INTER_LINEAR);
     cv::resize(intensity_preview,intensity_preview_resized,cv::Size(image_width,image_height),0,0,cv::INTER_LINEAR);
 
     ui->intensity_display->showImage(intensity_preview_resized);
+}
 
+void eVBL::draw_crop_box()
+{
+    if(crop_box_line[0] == -1)
+    {
+        display_analyse(manipulated_image);
+        return;
+    }
+    manipulated_image.copyTo(analyse_overlay);
+    //get 4 corners
+    int x1 = crop_box_line[0] - CROP_BOX_SIZE/2;
+    int x2 = crop_box_line[0] + CROP_BOX_SIZE/2;
+    int y1 = crop_box_line[1] - CROP_BOX_SIZE/2;
+    int y2 = crop_box_line[1] + CROP_BOX_SIZE/2;
 
-
-
+    //make outer box
+    int line_thickness = ui->combo_line_thickness->currentText().toInt();
+    cv::rectangle(analyse_overlay, cv::Point(x1,y1),cv::Point(x2,y2),line_colour,line_thickness,8,0);
+    //make cross
+    draw_line(analyse_overlay,x1,crop_box_line[1],x2,crop_box_line[1]);
+    draw_line(analyse_overlay,crop_box_line[0],y1,crop_box_line[0],y2);
+    //make anchor circle
+    draw_circle(analyse_overlay,crop_box_line[0],crop_box_line[1]);
+    display_analyse(analyse_overlay);
 }
 
 void eVBL::draw_box(cv::Mat img, int x_point, int y_point)  //draw box around specified point
@@ -1188,3 +1274,72 @@ void eVBL::on_radio_degrees_toggled(bool checked)
     show_angle();
 }
 
+
+void eVBL::on_clipboard_button_clicked()    //copy intensity profile data to clipboard
+{
+    //check if any intensity data
+
+    //create clipboard instance and copy data to clipboard
+    QClipboard *cb = QApplication::clipboard();
+    //create csv data string
+    qDebug() << intensity_profile[0];
+    QString cb_txt = prepare_intensity_data_string();
+    cb->setText(cb_txt);
+}
+
+void eVBL::on_file_button_clicked()
+{
+    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + "auto_name",tr("Text File (*.txt);;All Files (*.*)"));
+    QByteArray ba = savefilename.toUtf8();
+    const char *txt_filesave = ba.data();
+    if (savefilename.isEmpty())
+    {
+        qDebug() << "empty";
+    }
+    else
+    {
+        QString file_txt = prepare_intensity_data_string();
+        QFile file(savefilename);
+        file.open(QIODevice::WriteOnly | QIODevice::Text);
+        QTextStream out(&file);
+        out << file_txt;
+        file.close();
+    }
+}
+
+QString eVBL::prepare_intensity_data_string()  //prepare string of intensity profile data ready for export
+{
+    QString txt = QString::number(intensity_profile[0]);
+
+    for(int i=1; i<INTENSITY_LINE_LENGTH; i++)
+    {
+        txt.append('\n');
+        txt.append(QString::number(intensity_profile[i]));
+    }
+    return(txt);
+}
+
+void eVBL::on_crop_button_clicked()
+{
+
+    QString auto_name = "cropped";
+    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + auto_name,tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QByteArray ba = savefilename.toUtf8();
+    const char *cv_filesave = ba.data();
+    if (savefilename.isEmpty())
+    {
+        qDebug() << "empty";
+    }
+    else
+    {
+        qDebug() << cv_filesave;
+        int x1 = crop_box_line[0] - CROP_BOX_SIZE/2;
+        int y1 = crop_box_line[1] - CROP_BOX_SIZE/2;
+        cv::Mat croppedImage;
+        cv::Rect croparea(x1,y1,CROP_BOX_SIZE,CROP_BOX_SIZE);
+
+        cv::Mat(manipulated_image,croparea).copyTo(croppedImage);
+        cv::imwrite(cv_filesave,croppedImage);
+    }
+
+}

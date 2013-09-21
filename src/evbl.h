@@ -50,10 +50,12 @@ private slots:
     void on_reset_image_clicked();
     void draw_length_line();
     void draw_angle_line();
+    void draw_crop_box();
     void show_angle();
     void draw_intensity_line();
     void get_intensity_profile();
     void apply_overlay_lines();
+    QString prepare_intensity_data_string();
 
     void on_combo_line_colour_currentIndexChanged(int index);
 
@@ -62,7 +64,13 @@ private slots:
     void on_radio_degrees_toggled(bool checked);
 
 
-    void on_combo_line_thickness_currentIndexChanged(int index);
+    void on_combo_line_thickness_currentIndexChanged();
+
+    void on_clipboard_button_clicked();
+
+    void on_file_button_clicked();
+
+    void on_crop_button_clicked();
 
 private:
     Ui::eVBL *ui;
