@@ -38,7 +38,6 @@ static int crop_box_line[2] = {-1,-1};
 static int box_grab = 0;
 static int intensity_profile[INTENSITY_LINE_LENGTH];    //the profile of the intensity in values 0-255
 
-
 eVBL::eVBL(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::eVBL)
@@ -52,8 +51,6 @@ eVBL::eVBL(QWidget *parent) :
     set_combo_line_colour();        //set icon and entries for combo_line_colour on process tab
 
     connect(preview_timer, SIGNAL(timeout()), this, SLOT(update_video()));
-    connect(ui->capture_frame, SIGNAL(clicked()),this, SLOT(take_shot()));
-    connect(ui->multi_button, SIGNAL(clicked()),this, SLOT(multi_shot()));
     //set scrollbars to centre captured image when zoom level changes
     connect(ui->scrollArea_Capture->verticalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_vertical_capture(int,int)));
     connect(ui->scrollArea_Capture->horizontalScrollBar(), SIGNAL(rangeChanged(int,int)), this, SLOT(recentre_horizontal_capture(int,int)));
@@ -86,16 +83,16 @@ eVBL::eVBL(QWidget *parent) :
         QString description = QCamera::deviceDescription(deviceName);  //for reading in actual camera type
         cam_no = cam_no + 1;
         QString cam_no_str = QString::number(cam_no);
-        qDebug() << description;
-        ui->device_list->addItem("Detector " + cam_no_str);
-        //ui->device_list->addItem(description);//used to fill combo box with actual camera type
+        ui->device_list->addItem("Detector " + cam_no_str); //use to fill combo box with detector number in place of camera
+        //ui->device_list->addItem(description);    //used to fill combo box with actual camera type
     }
 
-    set_camera(ui->device_list->currentIndex());            //use selected camera in list
+
     if (ui->device_list->currentIndex() != -1)              //ignore if no cameras connected
     {
+        set_camera(ui->device_list->currentIndex());        //use selected camera in list
         preview_timer->start(EVBL_PREVIEW_WINDOW_REFRESH);      //gets the preview video working
-    }
+        }
     int index_c = ui->zoom_setting->findText("Fit");          //set default zoom to 'fit to window'
     int index_p = ui->zoom_setting_process->findText("Fit");  //same for the process tab window
     ui->zoom_setting->setCurrentIndex(index_c);
@@ -111,6 +108,7 @@ eVBL::~eVBL()
 
 void eVBL::on_evbl_tabs_currentChanged(int index)   //make changes when new main tab selected
 {
+    qDebug() << "evbl tab change";
     switch(index)
     {
     case 0:
@@ -132,13 +130,16 @@ void eVBL::on_evbl_tabs_currentChanged(int index)   //make changes when new main
 
 void eVBL::update_video()  //update preview video window. Called from timer function every EVBL_PREVIEW_WINDOW_REFRESH milliseconds
 {
+    //qDebug() << "update video";
     videoCapture.read(preview_frame);
     cv::resize(preview_frame,output_preview,cv::Size(EVBL_PREVIEW_WINDOW_WIDTH,EVBL_PREVIEW_WINDOW_HEIGHT),0,0,cv::INTER_LINEAR);
     ui->previewVideo->showImage(output_preview);
 }
 
-void eVBL::take_shot()  //take single shot from camera
+void eVBL::on_capture_frame_button_clicked()      //take single shot from camera
 {
+
+    qDebug() << "take shot";
     if (ui->device_list->currentIndex() == -1){return;}   //ignore if no cameras connected
 
     preview_frame.copyTo(buffered_snapshot);
@@ -146,30 +147,40 @@ void eVBL::take_shot()  //take single shot from camera
 
 }
 
-void eVBL::multi_shot() //take multiple series of shots and average them
+void eVBL::on_multi_frame_button_clicked()   //take multiple series of shots and average them
 {
+    //qDebug() << "multi shot";
     if (ui->device_list->currentIndex() == -1){return;}   //ignore if no cameras connected
-
-    int frames = 10;
+    preview_timer->stop();
+    this->setCursor(Qt::WaitCursor);
+    int frames = ui->spin_multi->value();
     cv::Mat averaged_image;
     display_capture(preview_frame);
+    ui->multishot_status->setText("Shot 1");
     averaged_image = preview_frame/frames;
-    for(int i = 0; i < frames; i++)
+    for(int i = 1; i <= frames; i++)
     {
         update_video();
-        qDebug() << i;
-        display_capture(preview_frame);
+        ui->multishot_status->setText("Shot " + QString::number(i + 1));
+        //qDebug() << i;
+        //display_capture(preview_frame);
         averaged_image += preview_frame/frames;
     }
+    ui->multishot_status->setText("Averaging");
     averaged_image.copyTo(buffered_snapshot);
     display_capture(buffered_snapshot);
 
-    qDebug() << "pew pew...";
+    preview_timer->start();
+    ui->multishot_status->setText("Done!");
+    this->setCursor(Qt::ArrowCursor);
+
+    //qDebug() << "pew pew...";
 }
 
 
 void eVBL::display_capture(cv::Mat display) //resize and store to buffer image captured from camera
 {
+    qDebug() << "display capture";
     if (display.empty() == true)
     {
         qDebug() << "empty frame";
@@ -177,12 +188,10 @@ void eVBL::display_capture(cv::Mat display) //resize and store to buffer image c
     }
     float val;
     QString str_val = ui->zoom_setting->currentText();
-
     if (str_val == "Fit")
     {
         float width_scale = (ui->scrollArea_Capture->width()-4) / videoCapture.get(CV_CAP_PROP_FRAME_WIDTH);
         float height_scale = (ui->scrollArea_Capture->height()-4) / videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT);
-
         if (width_scale <= height_scale)
         {
             val = width_scale;
@@ -198,7 +207,6 @@ void eVBL::display_capture(cv::Mat display) //resize and store to buffer image c
         QString strip_val = str_val.replace("%","");
         val = strip_val.toFloat() / 100.0 ;
     }
-
     cv::Mat output_display;
     cv::resize(display,output_display,cv::Size(),val,val,cv::INTER_LINEAR);
 
@@ -206,13 +214,14 @@ void eVBL::display_capture(cv::Mat display) //resize and store to buffer image c
     float image_height = videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT) * val;
 
     ui->captured_display->setMinimumSize(image_width,image_height);
+    ui->captured_display->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
     ui->captured_display->showImage(output_display);
-
 
 }
 
 void eVBL::set_camera(int index)    //set the camera parameters when new camera selected
 {
+    qDebug() << "set camera";
     if(index == -1)
     {
         qDebug() << "no camera";
@@ -228,8 +237,8 @@ void eVBL::set_camera(int index)    //set the camera parameters when new camera 
     //qDebug() << "auto" << videoCapture.get(CV_CAP_PROP_AUTO_EXPOSURE);
     //set_exposure = videoCapture.get(CV_CAP_PROP_EXPOSURE);
     //set_gain = videoCapture.get(CV_CAP_PROP_GAIN);
-    qDebug() << videoCapture.get(CV_CAP_PROP_EXPOSURE);
-    qDebug() << videoCapture.get(CV_CAP_PROP_GAIN);
+    //qDebug() << videoCapture.get(CV_CAP_PROP_EXPOSURE);
+    //qDebug() << videoCapture.get(CV_CAP_PROP_GAIN);
     QString image_height = QString::number(videoCapture.get(CV_CAP_PROP_FRAME_HEIGHT));
     QString image_width = QString::number(videoCapture.get(CV_CAP_PROP_FRAME_WIDTH));
     ui->label_resolution->setText("Size: " + image_width + " x " + image_height + " pixels");
@@ -238,6 +247,7 @@ void eVBL::set_camera(int index)    //set the camera parameters when new camera 
 
 void eVBL::on_device_list_currentIndexChanged(int index)    //change used camera when selected
 {
+    qDebug() << "camera change";
     videoCapture.release();
     set_camera(index);
 
@@ -351,6 +361,13 @@ void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed
 
         //create copy for analyse overlay
         analyse_image_saved.copyTo(analyse_overlay);
+
+        QFile file(loadfilename);
+        QFileInfo fileInfo(file.fileName());
+        QString fileout(fileInfo.fileName());
+
+        ui->label_loaded_file->setText(fileout);
+
     }
 }
 
@@ -371,7 +388,7 @@ void eVBL::on_background_button_clicked()   //load background file and apply to 
 
         //set file as analyse_image
         background_image = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
-        ui->label_loaded_background->setText("Loaded Background: " + fileout);
+        ui->label_loaded_background->setText(fileout);
         // if box already checked apply the manipulation
         if(ui->check_background->isChecked())
         {
@@ -623,6 +640,7 @@ void eVBL::on_reset_image_clicked()     //clear all manipulations to the image
     angle_line[4] = -1;
     intensity_line[0] = -1;
     intensity_line[2] = 0.0;
+    crop_box_line[0] = -1;
     box_grab = 0;
 
     ui->check_gaussian->setChecked(false);
@@ -689,11 +707,13 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
              if ((qSqrt(qPow(click_x-length_line[0],2))) <= 10 && (qSqrt(qPow(click_y-length_line[1],2)) <= 10))    //box 1 clicked
              {
                  box_grab = 1;
+                 this->setCursor(Qt::SizeAllCursor);
                  return;
              }
              if ((qSqrt(qPow(click_x-length_line[2],2))) <= 10 && (qSqrt(qPow(click_y-length_line[3],2)) <= 10))    //box 2 clicked
              {
                  box_grab = 2;
+                 this->setCursor(Qt::SizeAllCursor);
                  return;
              }
             length_line[0] = click_x;
@@ -730,16 +750,19 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
             if ((qSqrt(qPow(click_x-angle_line[0],2))) <= 10 && (qSqrt(qPow(click_y-angle_line[1],2)) <= 10))    //box 1 clicked
             {
                 box_grab = 1;
+                this->setCursor(Qt::SizeFDiagCursor);
                 return;
             }
             if ((qSqrt(qPow(click_x-angle_line[2],2))) <= 10 && (qSqrt(qPow(click_y-angle_line[3],2)) <= 10))    //circle clicked
             {
                 box_grab = 2;
+                this->setCursor(Qt::SizeAllCursor);
                 return;
             }
             if ((qSqrt(qPow(click_x-angle_line[4],2))) <= 10 && (qSqrt(qPow(click_y-angle_line[5],2)) <= 10))    //box 2 clicked
             {
                 box_grab = 3;
+                this->setCursor(Qt::SizeBDiagCursor);
                 return;
             }
             angle_line[0] = click_x;
@@ -761,16 +784,19 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
         if ((qSqrt(qPow(click_x-(intensity_line[0]- INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2])),2))) <= 10 && (qSqrt(qPow(click_y-(intensity_line[1]+ INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2])),2)) <= 10))    //box 1 clicked
         {
             box_grab = 1;
+            this->setCursor(Qt::SizeFDiagCursor);
             return;
         }
         if ((qSqrt(qPow(click_x-intensity_line[0],2))) <= 10 && (qSqrt(qPow(click_y-intensity_line[1],2)) <= 10))    //circle clicked
         {
             box_grab = 2;
+            this->setCursor(Qt::SizeAllCursor);
             return;
         }
         if ((qSqrt(qPow(click_x-(intensity_line[0]+ INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2])),2))) <= 10 && (qSqrt(qPow(click_y-(intensity_line[1]- INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2])),2)) <= 10))    //box 2 clicked
         {
             box_grab = 3;
+            this->setCursor(Qt::SizeBDiagCursor);
             return;
         }
 
@@ -814,6 +840,7 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
         if(qSqrt(qPow((click_x-crop_box_line[0]),2)) <= 10 && qSqrt(qPow((click_y-crop_box_line[1]),2)))
         {
             box_grab = 1;
+            this->setCursor(Qt::SizeAllCursor);
             return;
         }
 
@@ -872,7 +899,7 @@ void eVBL::mouseReleaseEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::RightButton){return;};    //return if right mouse button was released
     box_grab = 0;   //set box to ungrabbed mode when button released
-
+    this->setCursor(Qt::ArrowCursor);    //reset cursor
     if(ui->anal_type_tab->currentIndex() == 2)  //test if intensity line tab selected, and readjust box if out of bounds
     {
         int x1 = intensity_line[0] - INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
@@ -1287,9 +1314,13 @@ void eVBL::on_clipboard_button_clicked()    //copy intensity profile data to cli
     cb->setText(cb_txt);
 }
 
-void eVBL::on_file_button_clicked()
+void eVBL::on_file_button_clicked() //
 {
-    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + "auto_name",tr("Text File (*.txt);;All Files (*.*)"));
+    if(analyse_image_saved.empty() == true){return;}    //make sure file is loaded
+
+    QStringList get_name = ui->label_loaded_file->text().split(".");
+
+    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + get_name[0] + "-intensity",tr("Comma Delimited (*.csv);;Text File (*.txt);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
     const char *txt_filesave = ba.data();
     if (savefilename.isEmpty())
@@ -1321,9 +1352,10 @@ QString eVBL::prepare_intensity_data_string()  //prepare string of intensity pro
 
 void eVBL::on_crop_button_clicked()
 {
+    if(analyse_image_saved.empty() == true){return;}    //cehck if image loaded
 
-    QString auto_name = "cropped";
-    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + auto_name,tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QStringList get_name = ui->label_loaded_file->text().split(".");
+    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + get_name[0] + "-cropped",tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
     const char *cv_filesave = ba.data();
     if (savefilename.isEmpty())
@@ -1343,3 +1375,5 @@ void eVBL::on_crop_button_clicked()
     }
 
 }
+
+

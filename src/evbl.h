@@ -26,8 +26,6 @@ public:
     ~eVBL();
 
 private slots:
-    void take_shot();
-    void multi_shot();
     void set_combo_line_colour();
     void on_device_list_currentIndexChanged(int index);
     void on_zoom_setting_currentIndexChanged();
@@ -71,6 +69,10 @@ private slots:
     void on_file_button_clicked();
 
     void on_crop_button_clicked();
+
+    void on_capture_frame_button_clicked();
+
+    void on_multi_frame_button_clicked();
 
 private:
     Ui::eVBL *ui;
