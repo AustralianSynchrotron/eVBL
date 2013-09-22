@@ -1457,7 +1457,7 @@ QString eVBL::prepare_intensity_data_string()  //prepare string of intensity pro
 void eVBL::on_crop_button_clicked()
 {
     if(analyse_image_saved.empty() == true){return;}    //cehck if image loaded
-
+    if(crop_box_line[0] == -1){return;}
     QStringList get_name = ui->label_loaded_file->text().split(".");
     QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + get_name[0] + "-cropped",tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
