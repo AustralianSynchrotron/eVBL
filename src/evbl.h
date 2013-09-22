@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QtMultimedia/QCamera>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QTimer>
 #include <QPixmap>
 #include <QScrollArea>
@@ -40,6 +41,7 @@ private slots:
     void update_video();
     void on_evbl_tabs_currentChanged(int index);
     void on_open_analysis_button_clicked();
+    void check_background_size();
     void apply_manipulations();
     void apply_smooth_bg();
     void on_background_button_clicked();
@@ -53,6 +55,8 @@ private slots:
     void draw_intensity_line();
     void get_intensity_profile();
     void apply_overlay_lines();
+    void reset_crop_box();
+    void reset_intensity_line();
     QString prepare_intensity_data_string();
 
     void on_combo_line_colour_currentIndexChanged(int index);

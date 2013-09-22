@@ -11,6 +11,7 @@
 #include <QScrollBar>
 #include <QThread>
 #include <QClipboard>
+#include <QStandardPaths>
 
 #define EVBL_PREVIEW_WINDOW_HEIGHT 240
 #define EVBL_PREVIEW_WINDOW_WIDTH 320
@@ -43,10 +44,14 @@ eVBL::eVBL(QWidget *parent) :
     ui(new Ui::eVBL)
 {
     ui->setupUi(this);
+    this->setGeometry(QRect(10,40,1640,980));
 
     preview_timer = new QTimer(this);
 
-    QDir::setCurrent(QDir::currentPath());      //set the starting path for the files
+    //QDir::setCurrent(QDir::currentPath());      //set the starting path for the files
+    QStringList doc_path = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation);
+    QDir::setCurrent(doc_path[0]);  //set my documents as default folder
+
 
     set_combo_line_colour();        //set icon and entries for combo_line_colour on process tab
 
@@ -108,7 +113,7 @@ eVBL::~eVBL()
 
 void eVBL::on_evbl_tabs_currentChanged(int index)   //make changes when new main tab selected
 {
-    qDebug() << "evbl tab change";
+    //qDebug() << "evbl tab change";
     switch(index)
     {
     case 0:
@@ -139,7 +144,7 @@ void eVBL::update_video()  //update preview video window. Called from timer func
 void eVBL::on_capture_frame_button_clicked()      //take single shot from camera
 {
 
-    qDebug() << "take shot";
+    //qDebug() << "take shot";
     if (ui->device_list->currentIndex() == -1){return;}   //ignore if no cameras connected
 
     preview_frame.copyTo(buffered_snapshot);
@@ -180,10 +185,10 @@ void eVBL::on_multi_frame_button_clicked()   //take multiple series of shots and
 
 void eVBL::display_capture(cv::Mat display) //resize and store to buffer image captured from camera
 {
-    qDebug() << "display capture";
+    //qDebug() << "display capture";
     if (display.empty() == true)
     {
-        qDebug() << "empty frame";
+        //qDebug() << "empty frame";
         return;
     }
     float val;
@@ -221,10 +226,10 @@ void eVBL::display_capture(cv::Mat display) //resize and store to buffer image c
 
 void eVBL::set_camera(int index)    //set the camera parameters when new camera selected
 {
-    qDebug() << "set camera";
+    //qDebug() << "set camera";
     if(index == -1)
     {
-        qDebug() << "no camera";
+        //qDebug() << "no camera";
         return;
     }
     videoCapture.open(index);//(ui->device_list->currentIndex());
@@ -247,7 +252,7 @@ void eVBL::set_camera(int index)    //set the camera parameters when new camera 
 
 void eVBL::on_device_list_currentIndexChanged(int index)    //change used camera when selected
 {
-    qDebug() << "camera change";
+    //qDebug() << "camera change";
     videoCapture.release();
     set_camera(index);
 
@@ -280,19 +285,51 @@ void eVBL::on_save_image_button_clicked()   //save buffered captured camera imag
     QString object_number = ui->combo_objectnumber->currentText();
     QString wavelength = ui->combo_wavelength->currentText();
 
+    //check all field are filled
+    if((initials == "")||(school == "")||(distance == ""))
+    {
+        QStringList errors;
+        if(initials == ""){errors << "initials";}
+        if(school == ""){errors << "school";}
+        if(distance == ""){errors << "distance";}
+        QString error_message;
+        switch(errors.size())
+        {
+        case 1:
+            error_message = "You haven't filled out the " + errors[0] + " field!";
+            break;
+        case 2:
+            error_message = "You haven't filled out the " + errors[0] + " or " + errors[1] + " fields!!";
+            break;
+        case 3:
+            error_message = "you haven't filled out the " + errors[0] + ", " + errors[1] + " or " + errors[2] + " fields!!!";
+            break;
+        default:
+            error_message = "Something strange happened...";
+            break;
+        }
+        //qDebug() << error_message;
+        QMessageBox input_error;
+        input_error.setText(error_message + "\nDo you still want to continue saving the image?");
+        input_error.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        input_error.setDefaultButton(QMessageBox::No);
+        int reply = input_error.exec();
+
+       if(reply == QMessageBox::No)
+        {
+            return;
+        }
+    }
+
     QString auto_name = school + "_" + initials + "_" + object + "_" + wavelength + "_" + distance + "_" + object_number;
     QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + auto_name,tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
     const char *cv_filesave = ba.data();
-    if (savefilename.isEmpty())
-    {
-        qDebug() << "empty";
-    }
-    else
-    {
-        qDebug() << cv_filesave;
-        cv::imwrite(cv_filesave,buffered_snapshot);
-    }
+    if (savefilename.isEmpty()){return;}
+
+    //qDebug() << cv_filesave;
+    cv::imwrite(cv_filesave,buffered_snapshot);
+
 
 }
 
@@ -347,28 +384,35 @@ void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed
     QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image",QDir::currentPath(),tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = loadfilename.toUtf8();
     const char *cv_fileload = ba.data();
-    if (loadfilename.isEmpty())
+    if (loadfilename.isEmpty()){return;}
+
+    //qDebug() << cv_fileload;
+    //set file as analyse_image
+    analyse_image_saved = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
+    //send to add smooth_background for smoothing and background before display
+    apply_smooth_bg();
+
+    //create copy for analyse overlay
+    analyse_image_saved.copyTo(analyse_overlay);
+    QFile file(loadfilename);
+    QFileInfo fileInfo(file.fileName());
+    QString fileout(fileInfo.fileName());
+
+    ui->label_loaded_file->setText(fileout);
+
+    reset_crop_box();
+    reset_intensity_line();
+
+    if(ui->anal_type_tab->currentIndex() == 2)  //if intensity
     {
-        return;
+        draw_intensity_line();
+        get_intensity_profile();
     }
-    else
+    if(ui->anal_type_tab->currentIndex() == 3)  //if crop box
     {
-        qDebug() << cv_fileload;
-        //set file as analyse_image
-        analyse_image_saved = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
-        //send to add smooth_background for smoothing and background before display
-        apply_smooth_bg();
-
-        //create copy for analyse overlay
-        analyse_image_saved.copyTo(analyse_overlay);
-
-        QFile file(loadfilename);
-        QFileInfo fileInfo(file.fileName());
-        QString fileout(fileInfo.fileName());
-
-        ui->label_loaded_file->setText(fileout);
-
+        draw_crop_box();
     }
+
 }
 
 void eVBL::on_background_button_clicked()   //load background file and apply to picture if box checked
@@ -389,11 +433,29 @@ void eVBL::on_background_button_clicked()   //load background file and apply to 
         //set file as analyse_image
         background_image = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
         ui->label_loaded_background->setText(fileout);
+        check_background_size();
         // if box already checked apply the manipulation
         if(ui->check_background->isChecked())
         {
             apply_smooth_bg();
         }
+    }
+}
+
+void eVBL::check_background_size()  //make sure background is same size as image
+{
+    if((analyse_image_saved.empty()) == true || (background_image.empty() == true)){return;}
+    cv::Size bg_size = background_image.size();
+    cv::Size im_size = analyse_image_saved.size();
+
+    if(bg_size != im_size)  //if background image not right size
+    {
+        ui->check_background->setChecked(false);    //uncheck background
+        ui->check_background->setEnabled(false);    //disable background
+        ui->label_background_warning->setText("<font color='red'>background file wrong size!!!</font>"); //warning message
+    }else{
+        ui->check_background->setEnabled(true);
+        ui->label_background_warning->setText(""); //warning message
     }
 }
 
@@ -528,7 +590,7 @@ void eVBL::apply_smooth_bg()    //takes the buffered unedited image, applys smoo
     {
         return;
     }
-
+    ui->spin_gauss->setEnabled(false);
     this->setCursor(Qt::WaitCursor);
 
     //apply background subtraction
@@ -553,6 +615,7 @@ void eVBL::apply_smooth_bg()    //takes the buffered unedited image, applys smoo
    apply_manipulations();
 
    this->setCursor(Qt::ArrowCursor);
+   ui->spin_gauss->setEnabled(true);
 }
 
 void eVBL::apply_manipulations()    //apply the colour enhancement images to the analysed picture- outputs to manipulated_image
@@ -638,9 +701,8 @@ void eVBL::on_reset_image_clicked()     //clear all manipulations to the image
     angle_line[0] = -1;
     angle_line[2] = -1;
     angle_line[4] = -1;
-    intensity_line[0] = -1;
-    intensity_line[2] = 0.0;
-    crop_box_line[0] = -1;
+    reset_intensity_line();
+    reset_crop_box();
     box_grab = 0;
 
     ui->check_gaussian->setChecked(false);
@@ -663,8 +725,43 @@ void eVBL::on_anal_type_tab_currentChanged(int index)
     apply_overlay_lines();
     if(index == 2)  //if intensity tab selected
     {
+        if(intensity_line[0] == -1){return;}
         get_intensity_profile();
     }
+    if(index == 3)  //if crop box
+    {
+        if(analyse_image_saved.empty() == true){return;}   //ignore if no loaded image
+        reset_crop_box();
+        draw_crop_box();
+    }
+}
+
+void eVBL::reset_crop_box()
+{
+    cv::Size a = analyse_image_saved.size();
+    float x = a.width;
+    float y = a.height;
+    if((x < 1024) || (y < 1024))
+    {
+        ui->crop_button->setEnabled(false);
+        ui->crop_info_label->setText("Too small to crop!");
+        crop_box_line[0] = x/2;
+        crop_box_line[1] = y/2;
+    }else{
+        ui->crop_button->setEnabled(true);
+        ui->crop_info_label->setText("Save cropped version of image");
+    }
+
+}
+
+void eVBL::reset_intensity_line()
+{
+    cv::Size a = analyse_image_saved.size();
+    float x = a.width;
+    float y = a.height;
+    intensity_line[0] = x/2;
+    intensity_line[1] = y/2;
+    intensity_line[2] = 0.0;
 }
 
 void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, return if not left pressed on analyse_display widget
@@ -866,7 +963,7 @@ void eVBL::mousePressEvent(QMouseEvent *event)   //event when mouse is pressed, 
         draw_crop_box();
         break;
     default:
-        qDebug() << "no tab selected ???";
+        //qDebug() << "no tab selected ???";
         break;
     }
 }
@@ -890,7 +987,7 @@ void eVBL::apply_overlay_lines()   //add lines to analyse overlay
         draw_crop_box();
         break;
     default:
-        qDebug() << "?";
+        //qDebug() << "?";
         break;
     }
 }
@@ -1094,10 +1191,10 @@ void eVBL::mouseMoveEvent(QMouseEvent *event)
             crop_box_line[1] = click_y;
             draw_crop_box();
         }
-        qDebug() << "mouse tracking";
+        //qDebug() << "mouse tracking";
         break;
     default:
-        qDebug() << "??";
+        //qDebug() << "??";
         break;
     }
 }
@@ -1226,11 +1323,17 @@ void eVBL::get_intensity_profile()  //get intensity profile along intensity line
     intensity_preview = cv::Mat::zeros(256,1024,CV_8UC3);    //create matrix for preview
     cv::Point intensity_polyline[1][INTENSITY_LINE_LENGTH]; //define points
 
+    cv::Size a = greyscale_analyse.size();
+    float max_x = a.width;
+    float max_y = a.height;
+
     //loop over all points
     for(int i=0; i<=INTENSITY_LINE_LENGTH;i++)
     {
         int x = intensity_line[0] - (INTENSITY_LINE_LENGTH/2 - i) * qCos(intensity_line[2]);
         int y = intensity_line[1] + (INTENSITY_LINE_LENGTH/2 - i) * qSin(intensity_line[2]);
+        if(x >= max_x){x = max_x - 1;}
+        if(y >= max_y){y = max_y - 1;}
         int intensity = greyscale_analyse.at<uchar>(y,x);
         intensity_profile[i] = intensity;   //save intensity value to buffer array
         intensity_polyline[0][i] = cv::Point(i,intensity);
@@ -1245,11 +1348,12 @@ void eVBL::get_intensity_profile()  //get intensity profile along intensity line
 
 void eVBL::draw_crop_box()
 {
-    if(crop_box_line[0] == -1)
+    if((crop_box_line[0] == -1) || (ui->crop_button->isEnabled() == false))
     {
         display_analyse(manipulated_image);
         return;
     }
+
     manipulated_image.copyTo(analyse_overlay);
     //get 4 corners
     int x1 = crop_box_line[0] - CROP_BOX_SIZE/2;
@@ -1309,7 +1413,7 @@ void eVBL::on_clipboard_button_clicked()    //copy intensity profile data to cli
     //create clipboard instance and copy data to clipboard
     QClipboard *cb = QApplication::clipboard();
     //create csv data string
-    qDebug() << intensity_profile[0];
+    //qDebug() << intensity_profile[0];
     QString cb_txt = prepare_intensity_data_string();
     cb->setText(cb_txt);
 }
@@ -1325,7 +1429,7 @@ void eVBL::on_file_button_clicked() //
     const char *txt_filesave = ba.data();
     if (savefilename.isEmpty())
     {
-        qDebug() << "empty";
+        //qDebug() << "empty";
     }
     else
     {
@@ -1358,21 +1462,17 @@ void eVBL::on_crop_button_clicked()
     QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + get_name[0] + "-cropped",tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
     const char *cv_filesave = ba.data();
-    if (savefilename.isEmpty())
-    {
-        qDebug() << "empty";
-    }
-    else
-    {
-        qDebug() << cv_filesave;
-        int x1 = crop_box_line[0] - CROP_BOX_SIZE/2;
-        int y1 = crop_box_line[1] - CROP_BOX_SIZE/2;
-        cv::Mat croppedImage;
-        cv::Rect croparea(x1,y1,CROP_BOX_SIZE,CROP_BOX_SIZE);
+    if (savefilename.isEmpty()){return;}
 
-        cv::Mat(manipulated_image,croparea).copyTo(croppedImage);
-        cv::imwrite(cv_filesave,croppedImage);
-    }
+    //qDebug() << cv_filesave;
+    int x1 = crop_box_line[0] - CROP_BOX_SIZE/2;
+    int y1 = crop_box_line[1] - CROP_BOX_SIZE/2;
+    cv::Mat croppedImage;
+    cv::Rect croparea(x1,y1,CROP_BOX_SIZE,CROP_BOX_SIZE);
+
+    cv::Mat(manipulated_image,croparea).copyTo(croppedImage);
+    cv::imwrite(cv_filesave,croppedImage);
+
 
 }
 
