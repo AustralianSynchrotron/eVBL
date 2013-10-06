@@ -29,6 +29,11 @@ Developing
   mingw32-make install
   ```
 
+  To compile static version for release on windows change the cmake options to:
+  ```bat
+  cmake -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=RELEASE -DBUILD_SHARED_LIBS=NO -D BUILD_opencv_python=OFF -D WITH_QT=ON -fPIC CMAKE_INSTALL_PREFIX="%CD%\..\install\release" ..
+  ```
+  
   On Linux/Mac OS X:
   
   ```bash
