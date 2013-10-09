@@ -63,7 +63,7 @@ private slots:
 
     void on_anal_type_tab_currentChanged(int index);
 
-    void on_radio_degrees_toggled(bool checked);
+    void on_radio_degrees_toggled();
 
 
     void on_combo_line_thickness_currentIndexChanged();

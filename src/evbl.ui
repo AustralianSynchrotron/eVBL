@@ -5,6 +5,14 @@
   <property name="enabled">
    <bool>true</bool>
   </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1640</width>
+    <height>980</height>
+   </rect>
+  </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
@@ -34,6 +42,10 @@
   </property>
   <property name="windowTitle">
    <string>eVBL-beta     touch it... feel it...</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/logo-blue.ico</normaloff>:/logo-blue.ico</iconset>
   </property>
   <property name="windowFilePath">
    <string notr="true"/>
@@ -1408,19 +1420,6 @@
         </layout>
        </item>
       </layout>
-      <zorder>layoutWidget</zorder>
-      <zorder>layoutWidget</zorder>
-      <zorder>spin_multi</zorder>
-      <zorder>label_multishots</zorder>
-      <zorder>label_multishots2</zorder>
-      <zorder>multishot_status</zorder>
-      <zorder>horizontalSpacer_18</zorder>
-      <zorder>horizontalSpacer_25</zorder>
-      <zorder>horizontalSpacer_26</zorder>
-      <zorder>horizontalSpacer_27</zorder>
-      <zorder>save_image_button</zorder>
-      <zorder>filename_groupBox</zorder>
-      <zorder>capture_groupBox</zorder>
       <zorder>horizontalSpacer_29</zorder>
      </widget>
      <widget class="QWidget" name="process_tab">
@@ -2995,9 +2994,6 @@ Grab centre of box to reposition.</string>
         </layout>
        </item>
       </layout>
-      <zorder>horizontalSpacer_28</zorder>
-      <zorder>anal_type_tab</zorder>
-      <zorder>verticalSpacer_6</zorder>
       <zorder>horizontalSpacer_20</zorder>
      </widget>
     </widget>
@@ -3013,6 +3009,8 @@ Grab centre of box to reposition.</string>
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

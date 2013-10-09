@@ -12,6 +12,7 @@
 #include <QThread>
 #include <QClipboard>
 #include <QStandardPaths>
+#include <QSettings>
 
 #define EVBL_PREVIEW_WINDOW_HEIGHT 240
 #define EVBL_PREVIEW_WINDOW_WIDTH 320
@@ -45,6 +46,12 @@ eVBL::eVBL(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setGeometry(QRect(10,40,1640,980));
+    this->setWindowIcon(QIcon("./logo-blue.ico"));
+
+    QSettings settings("./eVBL.ini", QSettings::IniFormat);
+    settings.beginGroup("General");
+    int test = settings.value("crop_box_size",100).toInt();
+    qDebug() << "crop box" << test;
 
     preview_timer = new QTimer(this);
 
@@ -381,7 +388,7 @@ void eVBL::change_rotate_spinbox(int val)                           //change int
 
 void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed in process tab
 {
-    QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image",QDir::currentPath(),tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image",QDir::currentPath(),tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;All Files (*.*)"));
     QByteArray ba = loadfilename.toUtf8();
     const char *cv_fileload = ba.data();
     if (loadfilename.isEmpty()){return;}
@@ -417,7 +424,7 @@ void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed
 
 void eVBL::on_background_button_clicked()   //load background file and apply to picture if box checked
 {
-    QString loadfilename = QFileDialog::getOpenFileName(this,"Load Background",QDir::currentPath(),tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QString loadfilename = QFileDialog::getOpenFileName(this,"Load Background",QDir::currentPath(),tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;All Files (*.*)"));
     QByteArray ba = loadfilename.toUtf8();
     const char *cv_fileload = ba.data();
     if (loadfilename.isEmpty())
@@ -1400,7 +1407,7 @@ void eVBL::draw_circle(cv::Mat img, int x_point, int y_point)   //draw circle ar
 
 
 
-void eVBL::on_radio_degrees_toggled(bool checked)
+void eVBL::on_radio_degrees_toggled()
 {
     show_angle();
 }
@@ -1426,7 +1433,6 @@ void eVBL::on_file_button_clicked() //
 
     QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + get_name[0] + "-intensity",tr("Comma Delimited (*.csv);;Text File (*.txt);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
-    const char *txt_filesave = ba.data();
     if (savefilename.isEmpty())
     {
         //qDebug() << "empty";
