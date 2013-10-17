@@ -72,7 +72,7 @@ To build static Qt:
 6. In `C:\Qt\qt-static`, run
 
   ```
-  configure -static -release -opensource -confirm-license -nomake examples
+  configure -static -release -opensource -confirm-license -nomake tests -nomake examples
   ```
 
 7. Run `mingw32-make`.
