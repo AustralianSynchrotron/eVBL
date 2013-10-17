@@ -57,7 +57,7 @@ To build static Qt:
 
 1. Download the Qt source code and unzip to `C:\Qt\qt-static\`.
 2. Follow the instructions in `C:\Qt\qt-static\README` to install depedencies (Perl, Python, [ICU](http://qt-project.org/wiki/Compiling-ICU-with-MinGW)).
-3. Edit `C:\Qt\qt-static\qtbase\mkspecs\win32-g++` [as instructed here](http://www.qtcentre.org/wiki/index.php?title=Building_static_Qt_on_Windows_with_MinGW).
+3. Edit `C:\Qt\qt-static\qtbase\mkspecs\win32-g++\qmake.conf` [as instructed here](http://www.qtcentre.org/wiki/index.php?title=Building_static_Qt_on_Windows_with_MinGW).
 4. Add to `C:\Qt\qt-static\qtbase\qmake\Makefile.win32`
 
   ```
