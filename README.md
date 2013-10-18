@@ -3,21 +3,22 @@ Software to save and analyse diffraction pattern images from the Australian Sync
 Developing
 ----------
 
-1. Install [Qt5](http://qt-project.org/downloads) including source and [CMake](http://www.cmake.org/cmake/resources/software.html) if you don't have them already.
-2. If on Windows, add the CMake and MinGW bin directories to your `PATH` environment variable. They will be something like
+1. Install [Qt5 **including source and MinGW**](http://qt-project.org/downloads).
+2. Install [CMake](http://www.cmake.org/cmake/resources/software.html).
+3. Add the CMake and MinGW `bin` directories to your `PATH` environment variable. They will be something like
   
   ```bat
   C:\Program Files\CMake 2.8\bin
   C:\Qt\Qt5.0.2\Tools\MinGW\bin
   ```
   
-3. Clone the repository:
+4. Clone the repository:
 
   ```bash
   git clone --recursive https://github.com/AustralianSynchrotron/eVBL.git
   ```
 
-4. Compile opencv.
+5. Compile opencv.
 
   On Windows:
 
@@ -44,7 +45,7 @@ Developing
   make install
   ```
 
-5. Add to your `PATH` environment variable:
+6. Add to your `PATH` environment variable:
   
   ```bash
   /path/to/project/src/opencv/install/debug/bin
@@ -81,7 +82,6 @@ To build static Qt:
   set INCLUDE=C:\icu\dist\include
   set LIB=C:\icu\dist\lib
   configure -static -release -opensource -confirm-license -opengl desktop -nomake tests -nomake examples -prefix C:\Qt\Qt5.1.1\5.1.1\mingw48_32-static
-  mingw32-make
   mingw32-make install
   ```
 
