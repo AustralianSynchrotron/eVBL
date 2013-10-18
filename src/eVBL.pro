@@ -82,4 +82,3 @@ win32 {
 
 }
 
-RC_FILE =  icon.rc

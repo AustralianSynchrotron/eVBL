@@ -46,7 +46,6 @@ eVBL::eVBL(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setGeometry(QRect(10,40,1640,980));
-    this->setWindowIcon(QIcon("./logo-blue.ico"));
 
     QSettings settings("./eVBL.ini", QSettings::IniFormat);
     settings.beginGroup("General");
