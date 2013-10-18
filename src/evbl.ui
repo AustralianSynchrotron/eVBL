@@ -9,20 +9,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1640</width>
-    <height>980</height>
+    <width>1468</width>
+    <height>949</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1640</width>
-    <height>980</height>
+    <width>0</width>
+    <height>0</height>
    </size>
   </property>
   <property name="baseSize">
@@ -36,6 +36,10 @@
   </property>
   <property name="windowTitle">
    <string>eVBL-beta     touch it... feel it...</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>logo-blue.ico</normaloff>logo-blue.ico</iconset>
   </property>
   <property name="windowFilePath">
    <string notr="true"/>
@@ -52,8 +56,8 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>1640</width>
-     <height>980</height>
+     <width>0</width>
+     <height>0</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -1313,15 +1317,15 @@
        <item>
         <widget class="QScrollArea" name="scrollArea_Capture">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>1200</width>
-           <height>900</height>
+           <width>600</width>
+           <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
@@ -1344,8 +1348,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1198</width>
-            <height>904</height>
+            <width>1023</width>
+            <height>446</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -2886,8 +2890,8 @@ Grab centre of box to reposition.</string>
          </property>
          <property name="minimumSize">
           <size>
-           <width>1200</width>
-           <height>900</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
          <property name="lineWidth">
@@ -2904,8 +2908,8 @@ Grab centre of box to reposition.</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1198</width>
-            <height>904</height>
+            <width>978</width>
+            <height>779</height>
            </rect>
           </property>
           <property name="sizePolicy">
