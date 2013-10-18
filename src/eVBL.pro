@@ -21,6 +21,17 @@ HEADERS  += evbl.h \
 
 FORMS    += evbl.ui
 
+QTPLUGIN += qmng\
+    qico\
+    qsvg\
+    qtga\
+    qtiff\
+    qwbmp\
+    qtmedia_audioengine\
+    dsengine\
+    qtmultimedia_m3u\
+    qwindows
+
 Debug:INCLUDEPATH += opencv\\install\\debug\\include
 Debug:LIBS += -L$$PWD\\opencv\\install\\debug\\lib
 Release:INCLUDEPATH += opencv\\install\\release\\include
