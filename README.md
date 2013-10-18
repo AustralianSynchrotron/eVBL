@@ -3,7 +3,7 @@ Software to save and analyse diffraction pattern images from the Australian Sync
 Developing
 ----------
 
-1. Install [Qt5](http://qt-project.org/downloads) and [CMake](http://www.cmake.org/cmake/resources/software.html) if you don't have them already.
+1. Install [Qt5](http://qt-project.org/downloads) including source and [CMake](http://www.cmake.org/cmake/resources/software.html) if you don't have them already.
 2. If on Windows, add the CMake and MinGW bin directories to your `PATH` environment variable. They will be something like
   
   ```bat
@@ -56,24 +56,31 @@ Deploying
 To build static Qt:
 
 1. Download the Qt source code and unzip to `C:\Qt\qt-static\`.
-2. Follow the instructions in `C:\Qt\qt-static\README` to install depedencies (Perl, Python, [ICU](http://qt-project.org/wiki/Compiling-ICU-with-MinGW)).
-3. Edit `C:\Qt\qt-static\qtbase\mkspecs\win32-g++\qmake.conf` [as instructed here](http://www.qtcentre.org/wiki/index.php?title=Building_static_Qt_on_Windows_with_MinGW).
-4. Add to `C:\Qt\qt-static\qtbase\qmake\Makefile.win32`
+2. Install depedencies in `C:\Qt\qt-static\README`: [Perl](http://strawberryperl.com/), [Python 2.7](http://www.python.org/download/), [ICU](http://qt-project.org/wiki/Compiling-ICU-with-MinGW).
+3. Add to your `PATH`:
+  
+  ```
+  C:\strawberry\perl\bin;C:\Python27;C:\icu\dist\bin
+  ```
+
+4. Edit `C:\Qt\qt-static\qtbase\mkspecs\win32-g++\qmake.conf` [as instructed here](http://www.qtcentre.org/wiki/index.php?title=Building_static_Qt_on_Windows_with_MinGW).
+5. Add to `C:\Qt\qt-static\qtbase\qmake\Makefile.win32`
 
   ```
-  LFLAGS = -static-libgcc
+  LFLAGS = -static -static-libgcc
   ```
-5. Add to `C:\Qt\qt-static\qtmultimedia\src\src.pro`
+  
+6. Add to `C:\Qt\qt-static\qtmultimedia\src\src.pro`
   
   ``` 
   CONFIG += static
   ```
 
-6. In `C:\Qt\qt-static`, run
+7. In `C:\Qt\qt-static`, run
 
   ```
-  configure -static -release -opensource -confirm-license -nomake tests -nomake examples
+  configure -static -release -opensource -confirm-license -opengl desktop -nomake tests -nomake examples -prefix C:\Qt\Qt5.1.1\5.1.1\mingw48_32-static
   ```
 
-7. Run `mingw32-make`.
-8. [Integrate the static version of Qt to QtCreator](http://qt-project.org/wiki/How_to_build_a_static_Qt_version_for_Windows_with_gcc#0a567b9d89a882ced5936e050ef62a79).
+8. Run `mingw32-make`.
+9. [Integrate the static version of Qt to QtCreator](http://qt-project.org/wiki/How_to_build_a_static_Qt_version_for_Windows_with_gcc#0a567b9d89a882ced5936e050ef62a79).
