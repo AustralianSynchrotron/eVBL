@@ -56,11 +56,15 @@ Deploying
 To build static Qt:
 
 1. Download the Qt source code and unzip to `C:\Qt\qt-static\`.
-2. Install depedencies in `C:\Qt\qt-static\README`: [Perl](http://strawberryperl.com/), [Python 2.7](http://www.python.org/download/), [ICU](http://qt-project.org/wiki/Compiling-ICU-with-MinGW).
+2. Install depedencies in `C:\Qt\qt-static\README`:
+  * [Perl](http://strawberryperl.com/)
+  * [Python 2.7](http://www.python.org/download/)
+  * [Ruby](http://rubyinstaller.org/downloads/)
+  * [ICU](http://qt-project.org/wiki/Compiling-ICU-with-MinGW)
 3. Add to your `PATH`:
   
   ```
-  C:\strawberry\perl\bin;C:\Python27;C:\icu\dist\bin
+  C:\strawberry\perl\bin;C:\Python27;C:\Ruby200\bin;C:\icu\dist\bin
   ```
 
 4. Edit `C:\Qt\qt-static\qtbase\mkspecs\win32-g++\qmake.conf` [as instructed here](http://www.qtcentre.org/wiki/index.php?title=Building_static_Qt_on_Windows_with_MinGW).
