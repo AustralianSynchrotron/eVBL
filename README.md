@@ -67,13 +67,8 @@ To build static Qt:
   C:\strawberry\perl\bin;C:\Python27;C:\Ruby200\bin;C:\icu\dist\bin
   ```
 
-4. Edit `C:\Qt\qt-static\qtbase\mkspecs\win32-g++\qmake.conf` [as instructed here](http://www.qtcentre.org/wiki/index.php?title=Building_static_Qt_on_Windows_with_MinGW).
-5. Add to `C:\Qt\qt-static\qtbase\qmake\Makefile.win32`
-
-  ```
-  LFLAGS = -static -static-libgcc
-  ```
-  
+4. In `C:\Qt\qt-static\qtbase\mkspecs\win32-g++\qmake.conf` add `-static -static-libgcc` to `QMAKE_LFLAGS`.
+5. In `C:\Qt\qt-static\qtbase\qmake\Makefile.win32` add `-static -static-libgcc` to `LFLAGS`.
 6. Add to `C:\Qt\qt-static\qtmultimedia\src\src.pro`
   
   ``` 
