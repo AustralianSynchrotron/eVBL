@@ -78,6 +78,8 @@ private slots:
 
     void on_multi_frame_button_clicked();
 
+    void on_check_log_clicked();
+
 private:
     Ui::eVBL *ui;
 
@@ -94,6 +96,7 @@ private:
 
 
     cv::Mat apply_threshold(cv::Mat display);
+    cv::Mat apply_log(cv::Mat display);
 
     QTimer *preview_timer;
     cv::VideoCapture videoCapture;

@@ -657,6 +657,12 @@ void eVBL::apply_manipulations()    //apply the colour enhancement images to the
     //output manipulated image to screen
     manipulated_image = apply_threshold(manipulated_image);
 
+    //display logarithm of plot
+    if(ui->check_log->isChecked())
+    {
+        manipulated_image = apply_log(manipulated_image);
+    }
+
     apply_overlay_lines();
     if(ui->anal_type_tab->currentIndex() == 2)
     {
@@ -700,6 +706,26 @@ cv::Mat eVBL::apply_threshold(cv::Mat display)      //add colour thresholds to t
     return(return_img);
 }
 
+cv::Mat eVBL::apply_log(cv::Mat display)    // take logarithm of image
+{
+    cv::Mat return_img;
+    cv::Mat log_img;
+    display.copyTo(return_img);
+    display.copyTo(log_img);
+    //return_img = return_img + 1;
+    display.convertTo(return_img,CV_32F);
+    cv::log(return_img, return_img);
+    //cv::cvtColor(return_img,return_img,CV_)
+    return_img.convertTo(return_img,CV_8U);
+    return_img = return_img/log(255) * 255;
+    return(return_img);
+}
+
+void eVBL::on_check_log_clicked()
+{
+  apply_manipulations();
+}
+
 void eVBL::on_reset_image_clicked()     //clear all manipulations to the image
 {
     //reset drawn lines
@@ -716,6 +742,7 @@ void eVBL::on_reset_image_clicked()     //clear all manipulations to the image
     ui->check_background->setChecked(false);
     ui->check_bw->setChecked(false);
     ui->check_invert->setChecked(false);
+    ui->check_log->setChecked(false);
     ui->slider_low_point->setValue(0);
     ui->slider_high_point->setValue(255);
     threshold_low();
@@ -1481,5 +1508,6 @@ void eVBL::on_crop_button_clicked()
 
 
 }
+
 
 

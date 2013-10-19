@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1468</width>
-    <height>949</height>
+    <width>1665</width>
+    <height>975</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -416,6 +416,9 @@
                 <pointsize>12</pointsize>
                </font>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture single image.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string>Single Capture</string>
               </property>
@@ -445,6 +448,9 @@
                <font>
                 <pointsize>12</pointsize>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Capture multiple images and take an average.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Multi Capture</string>
@@ -482,6 +488,9 @@
                     <pointsize>12</pointsize>
                    </font>
                   </property>
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choose the number of image captures to average over in multi capture mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
                   <property name="text">
                    <string>Number of Multi Shots</string>
                   </property>
@@ -512,6 +521,9 @@
                    <font>
                     <pointsize>12</pointsize>
                    </font>
+                  </property>
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Choose the number of image captures to average over in multi capture mode.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>
@@ -1113,6 +1125,9 @@
                   <pointsize>10</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save the image currently displayed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string>Save Image</string>
                 </property>
@@ -1324,7 +1339,7 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>600</width>
+           <width>0</width>
            <height>0</height>
           </size>
          </property>
@@ -1348,8 +1363,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1023</width>
-            <height>446</height>
+            <width>1220</width>
+            <height>459</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -1667,6 +1682,9 @@
              <font>
               <pointsize>8</pointsize>
              </font>
+            </property>
+            <property name="toolTip">
+             <string/>
             </property>
             <property name="currentIndex">
              <number>0</number>
@@ -2350,6 +2368,9 @@ Grab centre of box to reposition.</string>
                 <pointsize>8</pointsize>
                </font>
               </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Invert colour values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
               <property name="text">
                <string>Invert</string>
               </property>
@@ -2361,6 +2382,9 @@ Grab centre of box to reposition.</string>
                <font>
                 <pointsize>8</pointsize>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Take a guess...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Black &amp;&amp; White</string>
@@ -2381,19 +2405,6 @@ Grab centre of box to reposition.</string>
              </spacer>
             </item>
            </layout>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>15</height>
-             </size>
-            </property>
-           </spacer>
           </item>
           <item>
            <layout class="QVBoxLayout" name="threshold_layout">
@@ -2441,6 +2452,9 @@ Grab centre of box to reposition.</string>
                   <pointsize>8</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust low pixel value.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string>Low</string>
                 </property>
@@ -2448,6 +2462,9 @@ Grab centre of box to reposition.</string>
               </item>
               <item row="0" column="1">
                <widget class="QSlider" name="slider_low_point">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust low pixel value.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="minimum">
                  <number>0</number>
                 </property>
@@ -2481,6 +2498,9 @@ Grab centre of box to reposition.</string>
                   <pointsize>8</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust low pixel value.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="buttonSymbols">
                  <enum>QAbstractSpinBox::NoButtons</enum>
                 </property>
@@ -2496,6 +2516,9 @@ Grab centre of box to reposition.</string>
                   <pointsize>8</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust high pixel value.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string>High</string>
                 </property>
@@ -2503,6 +2526,9 @@ Grab centre of box to reposition.</string>
               </item>
               <item row="1" column="1">
                <widget class="QSlider" name="slider_high_point">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust high pixel value.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="minimum">
                  <number>10</number>
                 </property>
@@ -2539,6 +2565,9 @@ Grab centre of box to reposition.</string>
                   <pointsize>8</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Adjust high pixel value.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="buttonSymbols">
                  <enum>QAbstractSpinBox::NoButtons</enum>
                 </property>
@@ -2558,21 +2587,38 @@ Grab centre of box to reposition.</string>
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="smoothing_layout">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
-             <widget class="QLabel" name="label_smoothing">
-              <property name="font">
-               <font>
-                <pointsize>10</pointsize>
-               </font>
-              </property>
-              <property name="text">
-               <string>Smoothing</string>
-              </property>
-             </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_28">
+              <item>
+               <widget class="QLabel" name="label_smoothing">
+                <property name="font">
+                 <font>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Smoothing</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_20">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>35</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </item>
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_2">
+             <layout class="QHBoxLayout" name="horizontalLayout_25">
               <item>
                <widget class="QLabel" name="label_blur">
                 <property name="sizePolicy">
@@ -2586,8 +2632,14 @@ Grab centre of box to reposition.</string>
                   <pointsize>10</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply gaussian smoothing with radius as specified.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
                 <property name="text">
                  <string>Gaussian Blur</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -2605,6 +2657,9 @@ Grab centre of box to reposition.</string>
                    <font>
                     <pointsize>8</pointsize>
                    </font>
+                  </property>
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply gaussian smoothing with radius as specified.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                   <property name="text">
                    <string>Enable</string>
@@ -2645,6 +2700,9 @@ Grab centre of box to reposition.</string>
                     <pointsize>8</pointsize>
                    </font>
                   </property>
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply gaussian smoothing with radius as specified.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
                   <property name="text">
                    <string>pixels</string>
                   </property>
@@ -2652,16 +2710,72 @@ Grab centre of box to reposition.</string>
                 </item>
                </layout>
               </item>
+              <item>
+               <spacer name="horizontalSpacer_16">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>158</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
              </layout>
             </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_29">
             <item>
-             <spacer name="horizontalSpacer_16">
+             <widget class="QLabel" name="label">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display the image on a base 10 log scale.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Display Logarithm</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="check_log">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>8</pointsize>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display the image on a base 10 log scale.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="text">
+               <string>Enable</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_29">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>158</width>
+                <width>40</width>
                 <height>20</height>
                </size>
               </property>
@@ -2908,8 +3022,8 @@ Grab centre of box to reposition.</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>978</width>
-            <height>779</height>
+            <width>1209</width>
+            <height>899</height>
            </rect>
           </property>
           <property name="sizePolicy">
