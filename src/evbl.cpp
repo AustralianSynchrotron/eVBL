@@ -13,15 +13,16 @@
 #include <QClipboard>
 #include <QStandardPaths>
 #include <QSettings>
+#include <QVector>
 
 #define EVBL_PREVIEW_WINDOW_HEIGHT 240
 #define EVBL_PREVIEW_WINDOW_WIDTH 320
-#define EVBL_PREVIEW_WINDOW_REFRESH 100
+#define DEFAULT_EVBL_PREVIEW_WINDOW_REFRESH 100
 #define COLOUR_ICON_WIDTH 20
 #define COLOUR_ICON_HEIGHT 15
-#define MM_PER_PIXEL 0.1376
-#define INTENSITY_LINE_LENGTH 1024
-#define CROP_BOX_SIZE 1024
+#define DEFAULT_MM_PER_PIXEL 0.1376
+#define DEFAULT_INTENSITY_LINE_LENGTH 1024
+#define DEFAULT_CROP_BOX_SIZE 1024
 #define PI 3.14159265358979323846264338327950288419717
 
 static int red_line[3] = {220,20,60};
@@ -38,7 +39,12 @@ static int angle_line[6] = {-1,-1,-1,-1,-1,-1};
 static float intensity_line[3] = {-1,-1,0.0};
 static int crop_box_line[2] = {-1,-1};
 static int box_grab = 0;
-static int intensity_profile[INTENSITY_LINE_LENGTH];    //the profile of the intensity in values 0-255
+QVector<int> intensity_profile;
+
+int CROP_BOX_SIZE;
+int EVBL_PREVIEW_WINDOW_REFRESH;
+int MM_PER_PIXEL;
+int INTENSITY_LINE_LENGTH;
 
 eVBL::eVBL(QWidget *parent) :
     QMainWindow(parent),
@@ -48,10 +54,12 @@ eVBL::eVBL(QWidget *parent) :
     this->setGeometry(QRect(10,40,1640,980));
     this->setWindowIcon(QIcon("./logo-blue.ico"));
 
-    QSettings settings("./eVBL.ini", QSettings::IniFormat);
-    settings.beginGroup("General");
-    int test = settings.value("crop_box_size",100).toInt();
-    qDebug() << "crop box" << test;
+    QSettings settings("./settings.ini", QSettings::IniFormat);
+    CROP_BOX_SIZE = settings.value("General/crop_box_size",DEFAULT_CROP_BOX_SIZE).toInt();
+    EVBL_PREVIEW_WINDOW_REFRESH = settings.value("General/preview_window_refresh",DEFAULT_EVBL_PREVIEW_WINDOW_REFRESH).toInt();
+    MM_PER_PIXEL = settings.value("General/mm_per_pixel",DEFAULT_MM_PER_PIXEL).toInt();
+    INTENSITY_LINE_LENGTH = settings.value("General/intensity_line_length",DEFAULT_INTENSITY_LINE_LENGTH).toInt();
+   intensity_profile.resize(INTENSITY_LINE_LENGTH);
 
     preview_timer = new QTimer(this);
 
@@ -84,8 +92,8 @@ eVBL::eVBL(QWidget *parent) :
     connect(ui->spin_low_point, SIGNAL(valueChanged(int)), ui->slider_low_point, SLOT(setValue(int)));
     connect(ui->slider_high_point, SIGNAL(valueChanged(int)), ui->spin_high_point, SLOT(setValue(int)));
     connect(ui->spin_high_point, SIGNAL(valueChanged(int)), ui->slider_high_point, SLOT(setValue(int)));
-    //connect(ui->rotate_slider, SIGNAL(sliderMoved(int)), this, SLOT(change_rotate_spinbox(int)));
-    connect(ui->rotate_slider, SIGNAL(valueChanged(int)), this, SLOT(change_rotate_spinbox(int)));
+    connect(ui->rotate_slider, SIGNAL(sliderMoved(int)), this, SLOT(change_rotate_spinbox(int)));
+    //connect(ui->rotate_slider, SIGNAL(valueChanged(int)), this, SLOT(change_rotate_spinbox(int)));
     connect(ui->rotate_spinbox, SIGNAL(valueChanged(double)), this, SLOT(change_rotate_slider(double)));
 
     //populate combo box showing the attached camera devices
@@ -377,12 +385,14 @@ void eVBL::change_rotate_slider(double val)                         //change dou
     intensity_line[2] = val * PI / 180;
     draw_intensity_line();
     double set_val = val * 10.0;
+    //qDebug() << "slider set" << set_val;
     ui->rotate_slider->setValue(set_val);
 }
 
 void eVBL::change_rotate_spinbox(int val)                           //change int value of rotate slider when spinbox changed
 {
     double set_val = static_cast<double>(val) / 10.0;
+    //qDebug() << "spin set" << set_val;
     ui->rotate_spinbox->setValue(set_val);
 }
 
@@ -775,15 +785,15 @@ void eVBL::reset_crop_box()
     cv::Size a = analyse_image_saved.size();
     float x = a.width;
     float y = a.height;
-    if((x < 1024) || (y < 1024))
+    if((x < CROP_BOX_SIZE) || (y < CROP_BOX_SIZE))
     {
         ui->crop_button->setEnabled(false);
         ui->crop_info_label->setText("Too small to crop!");
-        crop_box_line[0] = x/2;
-        crop_box_line[1] = y/2;
     }else{
         ui->crop_button->setEnabled(true);
         ui->crop_info_label->setText("Save cropped version of image");
+        crop_box_line[0] = x/2;
+        crop_box_line[1] = y/2;
     }
 
 }
@@ -1343,7 +1353,7 @@ void eVBL::draw_intensity_line() //draw intensity profile line over top of image
     draw_circle(analyse_overlay,x2,y2);
     draw_line(analyse_overlay,x1,y1,x2,y2);
     display_analyse(analyse_overlay);
-    //get_intensity_profile();
+
 }
 
 void eVBL::get_intensity_profile()  //get intensity profile along intensity line
@@ -1354,22 +1364,31 @@ void eVBL::get_intensity_profile()  //get intensity profile along intensity line
         return;
     }
     cv::cvtColor(manipulated_image,greyscale_analyse,CV_BGR2GRAY);  //make greyscale version for intensity
-    intensity_preview = cv::Mat::zeros(256,1024,CV_8UC3);    //create matrix for preview
+    intensity_preview = cv::Mat::zeros(256,INTENSITY_LINE_LENGTH,CV_8UC3);    //create matrix for preview
     cv::Point intensity_polyline[1][INTENSITY_LINE_LENGTH]; //define points
 
     cv::Size a = greyscale_analyse.size();
     float max_x = a.width;
     float max_y = a.height;
 
+    intensity_profile.clear();
     //loop over all points
     for(int i=0; i<=INTENSITY_LINE_LENGTH;i++)
     {
         int x = intensity_line[0] - (INTENSITY_LINE_LENGTH/2 - i) * qCos(intensity_line[2]);
         int y = intensity_line[1] + (INTENSITY_LINE_LENGTH/2 - i) * qSin(intensity_line[2]);
-        if(x >= max_x){x = max_x - 1;}
-        if(y >= max_y){y = max_y - 1;}
-        int intensity = greyscale_analyse.at<uchar>(y,x);
-        intensity_profile[i] = intensity;   //save intensity value to buffer array
+        //if(x >= max_x){x = max_x - 1;}
+        //if(y >= max_y){y = max_y - 1;}
+        int intensity;
+        if((x>=max_x)||(y>=max_y)||(x<=0)||(y<=0))
+        {
+            intensity = 0;
+        }
+        else
+        {
+            intensity = greyscale_analyse.at<uchar>(y,x);
+        }
+        intensity_profile.append(intensity);
         intensity_polyline[0][i] = cv::Point(i,intensity);
         cv::line(intensity_preview,cv::Point(i,256),cv::Point(i,256-intensity),cv::Scalar(200,255,200),1,8,0);
     }
@@ -1446,8 +1465,7 @@ void eVBL::on_clipboard_button_clicked()    //copy intensity profile data to cli
 
     //create clipboard instance and copy data to clipboard
     QClipboard *cb = QApplication::clipboard();
-    //create csv data string
-    //qDebug() << intensity_profile[0];
+    //create text data string
     QString cb_txt = prepare_intensity_data_string();
     cb->setText(cb_txt);
 }
@@ -1458,7 +1476,7 @@ void eVBL::on_file_button_clicked() //
 
     QStringList get_name = ui->label_loaded_file->text().split(".");
 
-    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + get_name[0] + "-intensity",tr("Comma Delimited (*.csv);;Text File (*.txt);;All Files (*.*)"));
+    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + get_name[0] + "-intensity",tr("Text File (*.txt);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
     if (savefilename.isEmpty())
     {
@@ -1477,12 +1495,12 @@ void eVBL::on_file_button_clicked() //
 
 QString eVBL::prepare_intensity_data_string()  //prepare string of intensity profile data ready for export
 {
-    QString txt = QString::number(intensity_profile[0]);
+    QString txt = QString::number(intensity_profile.value(0));
 
     for(int i=1; i<INTENSITY_LINE_LENGTH; i++)
     {
         txt.append('\n');
-        txt.append(QString::number(intensity_profile[i]));
+        txt.append(QString::number(intensity_profile.value(i)));
     }
     return(txt);
 }
