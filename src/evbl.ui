@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1665</width>
-    <height>975</height>
+    <width>1676</width>
+    <height>967</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>eVBL-beta     touch it... feel it...</string>
+   <string>Australian Synchrotron Student Camera    ---       ASS:Cam Project beta version      almost ready... so close...   </string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -382,6 +382,12 @@
            <height>0</height>
           </size>
          </property>
+         <property name="maximumSize">
+          <size>
+           <width>400</width>
+           <height>165</height>
+          </size>
+         </property>
          <property name="title">
           <string>Capture</string>
          </property>
@@ -646,7 +652,13 @@
          <property name="minimumSize">
           <size>
            <width>400</width>
-           <height>0</height>
+           <height>200</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>400</width>
+           <height>200</height>
           </size>
          </property>
          <property name="title">
@@ -1363,8 +1375,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1220</width>
-            <height>459</height>
+            <width>1231</width>
+            <height>445</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -1464,12 +1476,18 @@
        <item>
         <widget class="QGroupBox" name="imge_load_group">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
+          <size>
+           <width>400</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="maximumSize">
           <size>
            <width>400</width>
            <height>150</height>
@@ -1641,12 +1659,18 @@
        <item>
         <widget class="QGroupBox" name="anal_group">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
+          <size>
+           <width>400</width>
+           <height>360</height>
+          </size>
+         </property>
+         <property name="maximumSize">
           <size>
            <width>400</width>
            <height>360</height>
@@ -1662,19 +1686,31 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <property name="spacing">
-           <number>10</number>
+           <number>5</number>
+          </property>
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="topMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <property name="bottomMargin">
+           <number>5</number>
           </property>
           <item>
            <widget class="QTabWidget" name="anal_type_tab">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+             <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="minimumSize">
              <size>
-              <width>400</width>
+              <width>390</width>
               <height>220</height>
              </size>
             </property>
@@ -2308,7 +2344,7 @@ Grab centre of box to reposition.</string>
        <item>
         <widget class="QGroupBox" name="image_properties_group">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -2316,7 +2352,13 @@ Grab centre of box to reposition.</string>
          <property name="minimumSize">
           <size>
            <width>400</width>
-           <height>280</height>
+           <height>285</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>400</width>
+           <height>285</height>
           </size>
          </property>
          <property name="font">
@@ -3022,8 +3064,8 @@ Grab centre of box to reposition.</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1209</width>
-            <height>899</height>
+            <width>1240</width>
+            <height>870</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -3099,6 +3141,23 @@ Grab centre of box to reposition.</string>
              </layout>
             </widget>
            </item>
+           <item>
+            <widget class="QScrollArea" name="scrollArea">
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>1238</width>
+                <height>868</height>
+               </rect>
+              </property>
+             </widget>
+            </widget>
+           </item>
           </layout>
          </widget>
         </widget>
@@ -3108,6 +3167,35 @@ Grab centre of box to reposition.</string>
     </layout>
    </widget>
   </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1676</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_main">
+    <property name="title">
+     <string>Menu</string>
+    </property>
+    <addaction name="actionSettings"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menu_main"/>
+  </widget>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

@@ -12,18 +12,9 @@
 #include <QThread>
 #include <QClipboard>
 #include <QStandardPaths>
-#include <QSettings>
 #include <QVector>
 
-#define EVBL_PREVIEW_WINDOW_HEIGHT 240
-#define EVBL_PREVIEW_WINDOW_WIDTH 320
-#define DEFAULT_EVBL_PREVIEW_WINDOW_REFRESH 100
-#define COLOUR_ICON_WIDTH 20
-#define COLOUR_ICON_HEIGHT 15
-#define DEFAULT_MM_PER_PIXEL 0.1376
-#define DEFAULT_INTENSITY_LINE_LENGTH 1024
-#define DEFAULT_CROP_BOX_SIZE 1024
-#define PI 3.14159265358979323846264338327950288419717
+
 
 static int red_line[3] = {220,20,60};
 static int green_line[3] = {50,205,50};
@@ -41,10 +32,13 @@ static int crop_box_line[2] = {-1,-1};
 static int box_grab = 0;
 QVector<int> intensity_profile;
 
-int CROP_BOX_SIZE;
-int EVBL_PREVIEW_WINDOW_REFRESH;
-int MM_PER_PIXEL;
-int INTENSITY_LINE_LENGTH;
+QString settings_file = "./settings.ini";
+
+int CROP_BOX_SIZE = DEFAULT_CROP_BOX_SIZE;
+int PREVIEW_FPS = DEFAULT_PREVIEW_FPS;
+float MM_PER_PIXEL = DEFAULT_MM_PER_PIXEL;
+int INTENSITY_LINE_LENGTH = DEFAULT_INTENSITY_LINE_LENGTH;
+
 
 eVBL::eVBL(QWidget *parent) :
     QMainWindow(parent),
@@ -54,12 +48,7 @@ eVBL::eVBL(QWidget *parent) :
     this->setGeometry(QRect(10,40,1640,980));
     this->setWindowIcon(QIcon("./logo-blue.ico"));
 
-    QSettings settings("./settings.ini", QSettings::IniFormat);
-    CROP_BOX_SIZE = settings.value("General/crop_box_size",DEFAULT_CROP_BOX_SIZE).toInt();
-    EVBL_PREVIEW_WINDOW_REFRESH = settings.value("General/preview_window_refresh",DEFAULT_EVBL_PREVIEW_WINDOW_REFRESH).toInt();
-    MM_PER_PIXEL = settings.value("General/mm_per_pixel",DEFAULT_MM_PER_PIXEL).toInt();
-    INTENSITY_LINE_LENGTH = settings.value("General/intensity_line_length",DEFAULT_INTENSITY_LINE_LENGTH).toInt();
-   intensity_profile.resize(INTENSITY_LINE_LENGTH);
+    read_setting_values();  //get saved settings from ini file
 
     preview_timer = new QTimer(this);
 
@@ -111,7 +100,7 @@ eVBL::eVBL(QWidget *parent) :
     if (ui->device_list->currentIndex() != -1)              //ignore if no cameras connected
     {
         set_camera(ui->device_list->currentIndex());        //use selected camera in list
-        preview_timer->start(EVBL_PREVIEW_WINDOW_REFRESH);      //gets the preview video working
+        preview_timer->start(1000/PREVIEW_FPS);      //gets the preview video working
         }
     int index_c = ui->zoom_setting->findText("Fit");          //set default zoom to 'fit to window'
     int index_p = ui->zoom_setting_process->findText("Fit");  //same for the process tab window
@@ -135,7 +124,7 @@ void eVBL::on_evbl_tabs_currentChanged(int index)   //make changes when new main
         //start camera preview
         if (ui->device_list->currentIndex() != -1)          //ignore if no cameras connected
         {
-            preview_timer->start(EVBL_PREVIEW_WINDOW_REFRESH);  //gets the preview video working
+            preview_timer->start(1000/PREVIEW_FPS);  //gets the preview video working
         }
         break;
     case 1:
@@ -165,6 +154,19 @@ void eVBL::on_capture_frame_button_clicked()      //take single shot from camera
     preview_frame.copyTo(buffered_snapshot);
     display_capture(buffered_snapshot);
 
+}
+
+void eVBL::read_setting_values()    //read in ini file values
+{
+
+    QSettings settings(settings_file, QSettings::IniFormat);
+    CROP_BOX_SIZE = settings.value("General/crop_box_size",DEFAULT_CROP_BOX_SIZE).toInt();
+    PREVIEW_FPS = settings.value("General/preview_fps",DEFAULT_PREVIEW_FPS).toInt();
+    MM_PER_PIXEL = settings.value("General/mm_per_pixel",DEFAULT_MM_PER_PIXEL).toFloat();
+    INTENSITY_LINE_LENGTH = settings.value("General/intensity_line_length",DEFAULT_INTENSITY_LINE_LENGTH).toInt();
+    intensity_profile.resize(INTENSITY_LINE_LENGTH);
+
+    apply_overlay_lines();
 }
 
 void eVBL::on_multi_frame_button_clicked()   //take multiple series of shots and average them
@@ -416,14 +418,14 @@ void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed
     QString fileout(fileInfo.fileName());
 
     ui->label_loaded_file->setText(fileout);
-
+    cv::Size s = analyse_image_saved.size();
+    ui->label_resolution_process->setText("Size: " + QString::number(s.width) + " x " + QString::number(s.height) + " pixels");
     reset_crop_box();
     reset_intensity_line();
 
     if(ui->anal_type_tab->currentIndex() == 2)  //if intensity
     {
         draw_intensity_line();
-        get_intensity_profile();
     }
     if(ui->anal_type_tab->currentIndex() == 3)  //if crop box
     {
@@ -1075,7 +1077,6 @@ void eVBL::mouseReleaseEvent(QMouseEvent *event)
             intensity_line[1] = intensity_line[1] - y1;
         }
     draw_intensity_line();
-    get_intensity_profile();
     }
 
 }
@@ -1243,6 +1244,24 @@ void eVBL::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
+void eVBL::resizeEvent(QResizeEvent *event)
+{
+    QString str_val = ui->zoom_setting_process->currentText();
+    if(str_val == "Fit")
+    {
+        apply_overlay_lines();
+    }
+
+    str_val = ui->zoom_setting->currentText();
+    if(str_val == "Fit")
+    {
+        if(buffered_snapshot.empty() == false)
+        {
+            display_capture(buffered_snapshot);
+        }
+    }
+}
+
 void eVBL::draw_length_line()
 {
 
@@ -1353,6 +1372,8 @@ void eVBL::draw_intensity_line() //draw intensity profile line over top of image
     draw_circle(analyse_overlay,x2,y2);
     draw_line(analyse_overlay,x1,y1,x2,y2);
     display_analyse(analyse_overlay);
+
+    get_intensity_profile();
 
 }
 
@@ -1527,5 +1548,33 @@ void eVBL::on_crop_button_clicked()
 
 }
 
+//*********************************************************************************************************************************
+//
+//menu items
+//
+//*********************************************************************************************************************************
 
+void eVBL::on_actionExit_triggered()
+{
+    QApplication::quit();
+}
 
+void eVBL::on_actionSettings_triggered()
+{
+    Settings *config = new Settings();
+    int reply = config->exec();
+
+    if(reply == 0)
+    {
+        read_setting_values();
+
+        if(ui->evbl_tabs->currentIndex() == 0)
+        {
+            if (ui->device_list->currentIndex() != -1)          //ignore if no cameras connected
+            {
+                preview_timer->stop();
+                preview_timer->start(1000/PREVIEW_FPS);
+            }
+        }
+    }
+}

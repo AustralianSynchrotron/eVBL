@@ -10,9 +10,23 @@
 #include <QScrollArea>
 #include <QMouseEvent>
 #include <qmath.h>
+#include <QSettings>
+#include <QResizeEvent>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
+
+#include <settings.h>
+
+#define EVBL_PREVIEW_WINDOW_HEIGHT 240
+#define EVBL_PREVIEW_WINDOW_WIDTH 320
+#define DEFAULT_PREVIEW_FPS 25
+#define COLOUR_ICON_WIDTH 20
+#define COLOUR_ICON_HEIGHT 15
+#define DEFAULT_MM_PER_PIXEL 0.1376
+#define DEFAULT_INTENSITY_LINE_LENGTH 1024
+#define DEFAULT_CROP_BOX_SIZE 1024
+#define PI 3.14159265358979323846264338327950288419717
 
 namespace Ui {
 class eVBL;
@@ -25,6 +39,7 @@ class eVBL : public QMainWindow
 public:
     explicit eVBL(QWidget *parent = 0);
     ~eVBL();
+
 
 private slots:
     void set_combo_line_colour();
@@ -58,6 +73,7 @@ private slots:
     void reset_crop_box();
     void reset_intensity_line();
     QString prepare_intensity_data_string();
+    void read_setting_values();
 
     void on_combo_line_colour_currentIndexChanged(int index);
 
@@ -80,8 +96,14 @@ private slots:
 
     void on_check_log_clicked();
 
+    void on_actionExit_triggered();
+
+    void on_actionSettings_triggered();
+
 private:
     Ui::eVBL *ui;
+
+    Settings *settings;
 
     void display_capture(cv::Mat display);
     void display_analyse(cv::Mat display);
@@ -90,6 +112,7 @@ private:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void resizeEvent(QResizeEvent *event);
     void draw_box(cv::Mat img, int x_point, int y_point);
     void draw_line(cv::Mat img, int x1, int y1, int x2, int y2);
     void draw_circle(cv::Mat img, int x_point, int y_point);
@@ -114,6 +137,12 @@ private:
     cv::Mat intensity_preview;          //plot of intensity profile
     cv::Mat intensity_preview_resized;  //shrunk version of preview
     cv::Scalar line_colour;             //set colour of the analyse image lines
+
+    int CROP_BOX_SIZE = DEFAULT_CROP_BOX_SIZE;
+    int PREVIEW_FPS = DEFAULT_PREVIEW_FPS;
+    float MM_PER_PIXEL = DEFAULT_MM_PER_PIXEL;
+    int INTENSITY_LINE_LENGTH = DEFAULT_INTENSITY_LINE_LENGTH;
+
 
 
 protected:

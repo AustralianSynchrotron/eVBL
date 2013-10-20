@@ -14,12 +14,15 @@ TEMPLATE = app
 CONFIG +=static -static-libgcc
 
 SOURCES += main.cpp\
-        evbl.cpp
+        evbl.cpp \
+    settings.cpp
 
 HEADERS  += evbl.h \
-    cvimagewidget.h
+    cvimagewidget.h \
+    settings.h
 
-FORMS    += evbl.ui
+FORMS    += evbl.ui \
+    settings.ui
 
 QTPLUGIN += dsengine
 
