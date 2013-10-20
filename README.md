@@ -82,9 +82,9 @@ To build static Qt:
   ```
   set INCLUDE=C:\icu\dist\include
   set LIB=C:\icu\dist\lib
-  configure -static -release -opensource -confirm-license -opengl desktop -nomake tests -nomake examples -prefix C:\Qt\Qt5.1.1\5.1.1\mingw48_32-static
+  configure -static -release -opensource -confirm-license -nomake tests -nomake examples -nomake tools
   mingw32-make module-qtmultimedia
-  mingw32-make install
+  mingw32-make
   ```
 
 7. [Integrate the static version of Qt to QtCreator](http://qt-project.org/wiki/How_to_build_a_static_Qt_version_for_Windows_with_gcc#0a567b9d89a882ced5936e050ef62a79).
