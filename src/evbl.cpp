@@ -48,6 +48,15 @@ eVBL::eVBL(QWidget *parent) :
     this->setGeometry(QRect(10,40,1640,980));
     this->setWindowIcon(QIcon("./logo-blue.ico"));
 
+    //hide the camera controls which are not yet functional
+    ui->gain_slider->setHidden(true);
+    ui->label_gain->setHidden(true);
+    ui->spin_gain->setHidden(true);
+    ui->exposure_slider->setHidden(true);
+    ui->label_exposure->setHidden(true);
+    ui->spin_exposure->setHidden(true);
+
+
     read_setting_values();  //get saved settings from ini file
 
     preview_timer = new QTimer(this);
@@ -180,10 +189,10 @@ void eVBL::on_multi_frame_button_clicked()   //take multiple series of shots and
     display_capture(preview_frame);
     ui->multishot_status->setText("Shot 1");
     averaged_image = preview_frame/frames;
-    for(int i = 1; i <= frames; i++)
+    for(int i = 2; i <= frames; i++)
     {
         update_video();
-        ui->multishot_status->setText("Shot " + QString::number(i + 1));
+        ui->multishot_status->setText("Shot " + QString::number(i));
         //qDebug() << i;
         //display_capture(preview_frame);
         averaged_image += preview_frame/frames;
@@ -409,6 +418,7 @@ void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed
     //set file as analyse_image
     analyse_image_saved = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
     //send to add smooth_background for smoothing and background before display
+    check_background_size();
     apply_smooth_bg();
 
     //create copy for analyse overlay
@@ -1543,6 +1553,10 @@ void eVBL::on_crop_button_clicked()
     cv::Rect croparea(x1,y1,CROP_BOX_SIZE,CROP_BOX_SIZE);
 
     cv::Mat(manipulated_image,croparea).copyTo(croppedImage);
+    if(ui->check_bw->isChecked())
+    {
+        cv::cvtColor(croppedImage,croppedImage,CV_BGR2GRAY);
+    }
     cv::imwrite(cv_filesave,croppedImage);
 
 

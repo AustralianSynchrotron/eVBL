@@ -326,7 +326,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QSlider" name="horizontalSlider_2">
+          <widget class="QSlider" name="exposure_slider">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -348,7 +348,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="spinBox_4">
+          <widget class="QSpinBox" name="spin_exposure">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -538,7 +538,7 @@
                    <number>2</number>
                   </property>
                   <property name="maximum">
-                   <number>10</number>
+                   <number>50</number>
                   </property>
                   <property name="value">
                    <number>5</number>
