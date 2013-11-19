@@ -1358,6 +1358,11 @@ void eVBL::show_angle()     //calculate and display angle measurement
 
 }
 
+void eVBL::on_spin_intensity_width_valueChanged()
+{
+   draw_intensity_line();
+}
+
 void eVBL::draw_intensity_line() //draw intensity profile line over top of image
 {
     //test if null
@@ -1380,7 +1385,39 @@ void eVBL::draw_intensity_line() //draw intensity profile line over top of image
     draw_box(analyse_overlay, intensity_line[0],intensity_line[1]); //draw centre box
     draw_circle(analyse_overlay,x1,y1);
     draw_circle(analyse_overlay,x2,y2);
+
+    int integration_width = ui->spin_intensity_width->value();
+    int upper;
+    int lower;
+    if( integration_width % 2)
+    {
+        upper = (integration_width - 1) / 2;
+        lower = upper;
+    }else{
+        upper = integration_width / 2;
+        lower = upper - 1;
+    }
+    int intensity_x_upper = intensity_line[0] - upper*qSin(intensity_line[2]);
+    int intensity_y_upper = intensity_line[1] - upper*qCos(intensity_line[2]);
+    int intensity_x_lower = intensity_line[0] + lower*qSin(intensity_line[2]);
+    int intensity_y_lower = intensity_line[1] + lower*qCos(intensity_line[2]);
+
+    //draw upper line
+    x1 = intensity_x_upper - INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+    x2 = intensity_x_upper + INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+    y1 = intensity_y_upper + INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+    y2 = intensity_y_upper - INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+
     draw_line(analyse_overlay,x1,y1,x2,y2);
+
+    //draw lower line
+    x1 = intensity_x_lower - INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+    x2 = intensity_x_lower + INTENSITY_LINE_LENGTH/2 * qCos(intensity_line[2]);
+    y1 = intensity_y_lower + INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+    y2 = intensity_y_lower - INTENSITY_LINE_LENGTH/2 * qSin(intensity_line[2]);
+
+    draw_line(analyse_overlay,x1,y1,x2,y2);
+
     display_analyse(analyse_overlay);
 
     get_intensity_profile();
@@ -1404,21 +1441,45 @@ void eVBL::get_intensity_profile()  //get intensity profile along intensity line
 
     intensity_profile.clear();
     //loop over all points
+    int integration_width = ui->spin_intensity_width->value();
+    int start;
+    if( integration_width % 2)
+    {
+        start = (integration_width - 1) / 2;
+    }else{
+        start = integration_width / 2;
+    }
+    /*
+
+    int intensity_x_upper = intensity_line[0] - upper*qSin(intensity_line[2]);
+    int intensity_y_upper = intensity_line[1] - upper*qCos(intensity_line[2]);
+    int intensity_x_lower = intensity_line[0] + lower*qSin(intensity_line[2]);
+    int intensity_y_lower = intensity_line[1] + lower*qCos(intensity_line[2]);
+    */
+    int intensity;
+    int intensity_add = 0;
+
     for(int i=0; i<=INTENSITY_LINE_LENGTH;i++)
     {
-        int x = intensity_line[0] - (INTENSITY_LINE_LENGTH/2 - i) * qCos(intensity_line[2]);
-        int y = intensity_line[1] + (INTENSITY_LINE_LENGTH/2 - i) * qSin(intensity_line[2]);
-        //if(x >= max_x){x = max_x - 1;}
-        //if(y >= max_y){y = max_y - 1;}
-        int intensity;
-        if((x>=max_x)||(y>=max_y)||(x<=0)||(y<=0))
+        int mid_x = intensity_line[0] - (INTENSITY_LINE_LENGTH/2 - i) * qCos(intensity_line[2]);
+        int mid_y = intensity_line[1] + (INTENSITY_LINE_LENGTH/2 - i) * qSin(intensity_line[2]);
+
+        intensity_add = 0;
+        //integrate over selected width
+        for(int j=0; j<integration_width;j++)
         {
-            intensity = 0;
+            int x = mid_x - (start + j)*qSin(intensity_line[2]);
+            int y = mid_y - (start + j)*qCos(intensity_line[2]);
+            if((x>=max_x)||(y>=max_y)||(x<=0)||(y<=0))
+            {
+                intensity_add = intensity_add + 0;
+            }
+            else
+            {
+            intensity_add = intensity_add + greyscale_analyse.at<uchar>(y,x);
+            }
         }
-        else
-        {
-            intensity = greyscale_analyse.at<uchar>(y,x);
-        }
+        intensity = intensity_add / integration_width;
         intensity_profile.append(intensity);
         intensity_polyline[0][i] = cv::Point(i,intensity);
         cv::line(intensity_preview,cv::Point(i,256),cv::Point(i,256-intensity),cv::Scalar(200,255,200),1,8,0);
@@ -1426,7 +1487,6 @@ void eVBL::get_intensity_profile()  //get intensity profile along intensity line
     int image_width = ui->intensity_display->width();
     int image_height = ui->intensity_display->height();
     cv::resize(intensity_preview,intensity_preview_resized,cv::Size(image_width,image_height),0,0,cv::INTER_LINEAR);
-
     ui->intensity_display->showImage(intensity_preview_resized);
 }
 
@@ -1592,3 +1652,4 @@ void eVBL::on_actionSettings_triggered()
         }
     }
 }
+

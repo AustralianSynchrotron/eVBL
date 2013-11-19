@@ -100,6 +100,8 @@ private slots:
 
     void on_actionSettings_triggered();
 
+    void on_spin_intensity_width_valueChanged();
+
 private:
     Ui::eVBL *ui;
 

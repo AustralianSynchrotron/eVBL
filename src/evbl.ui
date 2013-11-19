@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Australian Synchrotron Student Camera    ---       ASS:Cam Project beta version      almost ready... so close...   </string>
+   <string>Australian Synchrotron Student Camera    ---       ASS:Cam Project beta version      with slightly more flavour... improved smell...   </string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -2008,6 +2008,23 @@ Drag any of the 3 points to fine tune.</string>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_18">
                 <item>
+                 <widget class="QLabel" name="label_intensity_width">
+                  <property name="text">
+                   <string>Integration Width</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QSpinBox" name="spin_intensity_width">
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>20</number>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <spacer name="horizontalSpacer_31">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -2023,7 +2040,7 @@ Drag any of the 3 points to fine tune.</string>
                 <item>
                  <widget class="QLabel" name="label_csvexport">
                   <property name="text">
-                   <string>Export CSV to...</string>
+                   <string>Export to...</string>
                   </property>
                  </widget>
                 </item>
