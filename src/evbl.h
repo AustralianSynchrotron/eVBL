@@ -17,6 +17,7 @@
 #include <opencv2/opencv.hpp>
 
 #include <settings.h>
+#include <about.h>
 
 #define EVBL_PREVIEW_WINDOW_HEIGHT 240
 #define EVBL_PREVIEW_WINDOW_WIDTH 320
@@ -100,12 +101,16 @@ private slots:
 
     void on_actionSettings_triggered();
 
+    void on_actionAbout_triggered();
+
     void on_spin_intensity_width_valueChanged();
 
 private:
     Ui::eVBL *ui;
 
     Settings *settings;
+    about* about_display;
+
 
     void display_capture(cv::Mat display);
     void display_analyse(cv::Mat display);

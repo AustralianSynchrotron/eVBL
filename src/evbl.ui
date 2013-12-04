@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Australian Synchrotron Student Camera    ---       ASS:Cam Project beta version      with slightly more flavour... improved smell...   </string>
+   <string>Australian Synchrotron Student Camera    ---       ASS:Cam Project beta version... only just barely.      Soon to awaken with a fresh aroma....      </string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -3201,7 +3201,14 @@ Grab centre of box to reposition.</string>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menu_main"/>
+   <addaction name="menuHelp"/>
   </widget>
   <action name="actionSettings">
    <property name="text">
@@ -3211,6 +3218,11 @@ Grab centre of box to reposition.</string>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

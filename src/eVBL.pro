@@ -15,14 +15,17 @@ CONFIG +=static -static-libgcc
 
 SOURCES += main.cpp\
         evbl.cpp \
-    settings.cpp
+    settings.cpp \
+    about.cpp
 
 HEADERS  += evbl.h \
     cvimagewidget.h \
-    settings.h
+    settings.h \
+    about.h
 
 FORMS    += evbl.ui \
-    settings.ui
+    settings.ui \
+    about.ui
 
 QTPLUGIN += dsengine
 
@@ -77,5 +80,8 @@ win32 {
 }
 
 RC_FILE = icon.rc
+
+RESOURCES += \
+    images.qrc
 
 

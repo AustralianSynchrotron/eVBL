@@ -348,7 +348,7 @@ void eVBL::on_save_image_button_clicked()   //save buffered captured camera imag
     }
 
     QString auto_name = school + "_" + initials + "_" + object + "_" + wavelength + "_" + distance + "_" + object_number;
-    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + auto_name,tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + auto_name,tr("Bitmap (*.bmp);;Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
     const char *cv_filesave = ba.data();
     if (savefilename.isEmpty()){return;}
@@ -409,7 +409,7 @@ void eVBL::change_rotate_spinbox(int val)                           //change int
 
 void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed in process tab
 {
-    QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image",QDir::currentPath(),tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;All Files (*.*)"));
+    QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image",QDir::currentPath(),tr("Bitmap (*.bmp);;Tiff (*.tif *.tiff);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = loadfilename.toUtf8();
     const char *cv_fileload = ba.data();
     if (loadfilename.isEmpty()){return;}
@@ -1449,13 +1449,7 @@ void eVBL::get_intensity_profile()  //get intensity profile along intensity line
     }else{
         start = integration_width / 2;
     }
-    /*
 
-    int intensity_x_upper = intensity_line[0] - upper*qSin(intensity_line[2]);
-    int intensity_y_upper = intensity_line[1] - upper*qCos(intensity_line[2]);
-    int intensity_x_lower = intensity_line[0] + lower*qSin(intensity_line[2]);
-    int intensity_y_lower = intensity_line[1] + lower*qCos(intensity_line[2]);
-    */
     int intensity;
     int intensity_add = 0;
 
@@ -1468,8 +1462,8 @@ void eVBL::get_intensity_profile()  //get intensity profile along intensity line
         //integrate over selected width
         for(int j=0; j<integration_width;j++)
         {
-            int x = mid_x - (start + j)*qSin(intensity_line[2]);
-            int y = mid_y - (start + j)*qCos(intensity_line[2]);
+            float x = mid_x - (start - j)*qSin(intensity_line[2]);
+            float y = mid_y - (start - j)*qCos(intensity_line[2]);
             if((x>=max_x)||(y>=max_y)||(x<=0)||(y<=0))
             {
                 intensity_add = intensity_add + 0;
@@ -1478,6 +1472,8 @@ void eVBL::get_intensity_profile()  //get intensity profile along intensity line
             {
             intensity_add = intensity_add + greyscale_analyse.at<uchar>(y,x);
             }
+            //qDebug() << "start =" << start << "point " << j << " x =" << x << "y =" << y << "mid x =" << mid_x << "mid y = " << mid_y << "intensity =" << greyscale_analyse.at<uchar>(y,x);
+
         }
         intensity = intensity_add / integration_width;
         intensity_profile.append(intensity);
@@ -1653,3 +1649,8 @@ void eVBL::on_actionSettings_triggered()
     }
 }
 
+void eVBL::on_actionAbout_triggered()
+{
+    about_display = new about();
+    about_display->show();
+}
