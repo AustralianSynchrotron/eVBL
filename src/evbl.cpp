@@ -16,6 +16,7 @@
 
 
 
+
 static int red_line[3] = {220,20,60};
 static int green_line[3] = {50,205,50};
 static int blue_line[3] = {65,105,255};
@@ -1653,4 +1654,10 @@ void eVBL::on_actionAbout_triggered()
 {
     about_display = new about();
     about_display->show();
+}
+
+void eVBL::on_actionHelp_triggered()
+{
+    help_display = new help();
+    help_display->show();
 }

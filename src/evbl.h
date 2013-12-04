@@ -12,12 +12,12 @@
 #include <qmath.h>
 #include <QSettings>
 #include <QResizeEvent>
-
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 
 #include <settings.h>
 #include <about.h>
+#include <help.h>
 
 #define EVBL_PREVIEW_WINDOW_HEIGHT 240
 #define EVBL_PREVIEW_WINDOW_WIDTH 320
@@ -103,6 +103,8 @@ private slots:
 
     void on_actionAbout_triggered();
 
+    void on_actionHelp_triggered();
+
     void on_spin_intensity_width_valueChanged();
 
 private:
@@ -110,6 +112,7 @@ private:
 
     Settings *settings;
     about* about_display;
+    help* help_display;
 
 
     void display_capture(cv::Mat display);

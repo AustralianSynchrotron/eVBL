@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<body>
+<a href="index.html">MAIN INDEX</a>
+<h1>Process Tab</h1>
+
+<p>This tab contains all the controls for doing analysis on the collected images.</p>
+
+<h2>Image Open/Save</h2>
+
+<p><b>Load Image:</b><br/> Load a saved image for processing.</p>
+
+<p><b>Load Background:</b><br/> Load a background image file.</p>
+
+<p><b>Subtract Background:</b><br/> Subtract the background image from the loaded image. If the background file and the loaded image file are not of the same dimensions then the background remove option will not be available.</p>
+
+<h2>Analyse Tabs</h2>
+
+<h3>Length</h3>
+
+<p>Draw a line in the image by clicking where the two endpoints are to be placed. The endpoints can be adjusted by dragging around anchor boxes. Clicking anywhere else on the image will begin a new line.<br/>
+The length of the line in mm is calculated from a pre-measured mm/pixel conversion factor. This conversion factor can be set in the settings.</p>
+
+<h3>Angle</h3>
+
+<p>Measure the angle between two lines drawn on the image. The line is drawn in the order endpoint 1 - centre - endpoint 2. Either point can be adjusted by dragging around the anchor boxes or circle.<br/>
+Clicking anywhere else on the image will begin a new angle measurement line.<br/>
+The angle formed by the lines can be determined in either degrees or radians as selected in the upper-right checkbox.</p>
+
+<h3>Intensity</h3>
+
+<p>Measure the intensity profile along the length of a line. Clicking anywhere on the image will move the centre point of the line. The line can also be moved by dragging around the anchor box in the centre. A preview of the intensity profile is displayed in the top portion of the intensity tab area.<br/>
+The length of the intensity profile line can be changed in the settings. The default value is 1024 pixels.</p>
+
+The angle at which the line is placed can be rotated either by:
+<ul>
+<li>Dragging either of the round anchor points at the end of the line with the mouse.</li>
+<li>Moving the rotate slide in the intensity tab box.</li>
+<li>Entering a value in the box next to the right of the rotate slider.</li>
+</ul>
+
+<p>The integration width is used if averaging over a thicker slice is desired. Set at 1, the intensity profile is measured only along the points on the line. Increasing the integration width will draw 2 lines on the image above and below the centre of the central box. The intensity profile of each point will be calculated from averaging all the points between those two lines. <br/>
+The profile data can either be saved as a text file, or sent to the windows clipboard to be pasted into another program (e.g. Excel).</p>
+
+<h3>Crop</h3>
+
+<p>The crop tab is used to crop the image size to be suitable for processing in other applications.<br/>
+The box displayed shows the area which will be cropped to. It can be moved around with the mouse.</p>
+
+<p>The 'Save Cropped' button will save the smaller image in the boxes boundary.</p>
+
+<h2>Line Properties</h2>
+
+<p><b>Colour:</b><br/> Colour of the overlay lines used for the analysis functions.</p>
+
+<p><b>Thickness:</b><br/> The thickness of the displayed lines. This only affects the display of the line - this property has no influence whatsoever on the 'Integration Width" calculation in the intensity analysis tab.</p>
+
+<h2>Image Properties</h2>
+
+<p>Various functions for post-processing of the image before analysis.<p>
+
+<p><b>Colours Invert:</b><br/> Invert the RGB value of each image pixel. Calculated for each individual colour channel as (255 - pixel value).</p>
+
+<p><b>Colours Black & White:</b><br/> Convert image to greyscale.</p>
+
+<p><b>Threshold:</b><br/> The threshold values are used to adjust the range of the intensity in the image by adjusting what the lowest and highest pixel values are.</p>
+<p><i>The low threshold</i> smooths variation in the darkest pixels by lower the black threshold. For example with a low threshold set at 30, all pixels with an intensity of 30 or less will be reset to a value of 0.<br/>
+<i>The high threshold</i> smooths variation in the brightest pixels  by increasing the white threshold. For example with a high threshold set at 220, all pixels with an intensity of 220 or more will be reset to a value of 255.</p>
+
+<p>After applying the low and high thresholds, the intensities are readjusted to fill the whole 255 pixel intensity range with the following calculation:<br/>
+new intensity = (I - low threshold) x 255 / (high threshold - low threshold)<br/>
+Where I is the original pixel intensity.</p>
+
+<p><b>Gaussian Blur:</b><br/> Uses a Gaussian smoothing function to blur the image with a blurring radius set by the number of pixels.</p>
+
+<p><b>Display Logarithm:</b><br/> Takes the base 10 logarithm of the image pixels. this has the effect of increasing the detail of the darker pixels and smoothing out the brighter pixels.</p>
+
+<p><b>Reset Image:</b><br/> Restores the displayed image to its original state free of post-processing.</p>
+ 
+<br/> 
+<br/>
+<br/>
+<a href="index.html">MAIN INDEX</a>|<a href="capturetab.html">CAPTURE TAB</a>|<a href="settings.html">SETTINGS</a>
+</body>
+</html>

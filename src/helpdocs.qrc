@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>index.html</file>
+        <file>capturetab.html</file>
+        <file>processtab.html</file>
+        <file>settings.html</file>
+    </qresource>
+</RCC>

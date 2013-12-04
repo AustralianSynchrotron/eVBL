@@ -196,14 +196,14 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="date_label">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>This build compiled 4/12/2013</string>
+         <string>This build compiled 5/12/2013</string>
         </property>
        </widget>
       </item>
