@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>logo.png</file>
+        <file>synch_icon.ico</file>
+        <file>detector_gadget.png</file>
+        <file>detector_gadget_midsize.png</file>
     </qresource>
 </RCC>

@@ -47,7 +47,6 @@ eVBL::eVBL(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setGeometry(QRect(10,40,1640,980));
-    this->setWindowIcon(QIcon("./logo-blue.ico"));
 
     //hide the camera controls which are not yet functional
     ui->gain_slider->setHidden(true);
@@ -56,6 +55,7 @@ eVBL::eVBL(QWidget *parent) :
     ui->exposure_slider->setHidden(true);
     ui->label_exposure->setHidden(true);
     ui->spin_exposure->setHidden(true);
+
 
 
     read_setting_values();  //get saved settings from ini file
@@ -161,6 +161,9 @@ void eVBL::on_capture_frame_button_clicked()      //take single shot from camera
     //qDebug() << "take shot";
     if (ui->device_list->currentIndex() == -1){return;}   //ignore if no cameras connected
 
+    //remove background logo
+    ui->capture_picture->setVisible(0);
+
     preview_frame.copyTo(buffered_snapshot);
     display_capture(buffered_snapshot);
 
@@ -218,6 +221,8 @@ void eVBL::display_capture(cv::Mat display) //resize and store to buffer image c
         //qDebug() << "empty frame";
         return;
     }
+
+
     float val;
     QString str_val = ui->zoom_setting->currentText();
     if (str_val == "Fit")
@@ -415,7 +420,10 @@ void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed
     const char *cv_fileload = ba.data();
     if (loadfilename.isEmpty()){return;}
 
-    //qDebug() << cv_fileload;
+    //remove background logo if active
+    ui->analyse_picture->setVisible(0);
+
+
     //set file as analyse_image
     analyse_image_saved = cv::imread(cv_fileload,CV_LOAD_IMAGE_COLOR);
     //send to add smooth_background for smoothing and background before display

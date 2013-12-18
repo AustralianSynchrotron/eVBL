@@ -35,11 +35,11 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Australian Synchrotron Student Camera    ---       ASS:Cam Project beta version... only just barely.      Soon to awaken with a fresh aroma....      </string>
+   <string>Detector Gadget.  Version 1.0.0      the very first... smell the fresh goodness...</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>logo-blue.ico</normaloff>logo-blue.ico</iconset>
+    <normaloff>synch_icon.ico</normaloff>synch_icon.ico</iconset>
   </property>
   <property name="windowFilePath">
    <string notr="true"/>
@@ -1375,8 +1375,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1231</width>
-            <height>445</height>
+            <width>1214</width>
+            <height>491</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -1410,6 +1410,19 @@
            <property name="bottomMargin">
             <number>0</number>
            </property>
+           <item>
+            <widget class="QLabel" name="capture_picture">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap resource="images.qrc">:/detector_gadget_midsize.png</pixmap>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="CVImageWidget" name="captured_display" native="true">
              <property name="sizePolicy">
@@ -3081,8 +3094,8 @@ Grab centre of box to reposition.</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>98</width>
-            <height>71</height>
+            <width>1240</width>
+            <height>870</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -3116,6 +3129,22 @@ Grab centre of box to reposition.</string>
            <property name="bottomMargin">
             <number>0</number>
            </property>
+           <item>
+            <widget class="QLabel" name="analyse_picture">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="pixmap">
+              <pixmap resource="images.qrc">:/detector_gadget_midsize.png</pixmap>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="CVImageWidget" name="analyse_display" native="true">
              <property name="sizePolicy">
@@ -3156,23 +3185,6 @@ Grab centre of box to reposition.</string>
                <number>0</number>
               </property>
              </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QScrollArea" name="scrollArea">
-             <property name="widgetResizable">
-              <bool>true</bool>
-             </property>
-             <widget class="QWidget" name="scrollAreaWidgetContents">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>98</width>
-                <height>28</height>
-               </rect>
-              </property>
-             </widget>
             </widget>
            </item>
           </layout>
@@ -3242,6 +3254,8 @@ Grab centre of box to reposition.</string>
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="images.qrc"/>
+ </resources>
  <connections/>
 </ui>
