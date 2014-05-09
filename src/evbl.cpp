@@ -354,7 +354,7 @@ void eVBL::on_save_image_button_clicked()   //save buffered captured camera imag
     }
 
     QString auto_name = school + "_" + initials + "_" + object + "_" + wavelength + "_" + distance + "_" + object_number;
-    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + auto_name,tr("Bitmap (*.bmp);;Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
+    QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + auto_name,tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
     const char *cv_filesave = ba.data();
     if (savefilename.isEmpty()){return;}
@@ -415,7 +415,7 @@ void eVBL::change_rotate_spinbox(int val)                           //change int
 
 void eVBL::on_open_analysis_button_clicked()    //open image file to be analysed in process tab
 {
-    QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image",QDir::currentPath(),tr("Bitmap (*.bmp);;Tiff (*.tif *.tiff);;JPEG (*.jpg);;All Files (*.*)"));
+    QString loadfilename = QFileDialog::getOpenFileName(this,"Open Image",QDir::currentPath(),tr("Tiff (*.tif *.tiff);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = loadfilename.toUtf8();
     const char *cv_fileload = ba.data();
     if (loadfilename.isEmpty()){return;}

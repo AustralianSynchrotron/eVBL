@@ -38,8 +38,8 @@
    <string>Detector Gadget.  Version 1.0.0      the very first... smell the fresh goodness...</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>synch_icon.ico</normaloff>synch_icon.ico</iconset>
+   <iconset resource="images.qrc">
+    <normaloff>:/DetectorGadgetIcon.ico</normaloff>:/DetectorGadgetIcon.ico</iconset>
   </property>
   <property name="windowFilePath">
    <string notr="true"/>
@@ -1376,7 +1376,7 @@
             <x>0</x>
             <y>0</y>
             <width>1214</width>
-            <height>491</height>
+            <height>595</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -1416,7 +1416,7 @@
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap resource="images.qrc">:/detector_gadget_midsize.png</pixmap>
+              <pixmap resource="images.qrc">:/DGadget_Screen_v6.png</pixmap>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -3138,7 +3138,7 @@ Grab centre of box to reposition.</string>
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap resource="images.qrc">:/detector_gadget_midsize.png</pixmap>
+              <pixmap>:/detector_gadget_midsize.png</pixmap>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
