@@ -35,7 +35,11 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Detector Gadget.  Version 1.1.0      the first release... out into the wild...</string>
+   <string>Detector Gadget.  Version 1.0.0      the very first... smell the fresh goodness...</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="images.qrc">
+    <normaloff>:/DetectorGadgetIcon.ico</normaloff>:/DetectorGadgetIcon.ico</iconset>
   </property>
   <property name="windowFilePath">
    <string notr="true"/>
@@ -3134,7 +3138,7 @@ Grab centre of box to reposition.</string>
               <string/>
              </property>
              <property name="pixmap">
-              <pixmap resource="images.qrc">:/DGadget_Screen_v6.png</pixmap>
+              <pixmap>:/detector_gadget_midsize.png</pixmap>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
