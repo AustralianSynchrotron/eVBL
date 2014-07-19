@@ -8,7 +8,7 @@ QT       += core gui multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Detector_Gadget
+TARGET = Detector_Gadget_v1-2-0
 TEMPLATE = app
 
 CONFIG +=static -static-libgcc

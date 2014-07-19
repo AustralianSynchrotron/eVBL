@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1676</width>
-    <height>976</height>
+    <width>1680</width>
+    <height>980</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,8 +21,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>1676</width>
-    <height>976</height>
+    <width>1000</width>
+    <height>500</height>
    </size>
   </property>
   <property name="baseSize">
@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Detector Gadget.  Version 1.0.0      the very first... smell the fresh goodness...</string>
+   <string>Detector Gadget.  Version 1.2.0     now with 80% less crashes... more laptop friendly</string>
   </property>
   <property name="windowIcon">
    <iconset resource="images.qrc">
@@ -65,8 +65,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>1674</width>
-      <height>953</height>
+      <width>1678</width>
+      <height>957</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -1396,7 +1396,7 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1212</width>
+             <width>1216</width>
              <height>595</height>
             </rect>
            </property>
@@ -3115,8 +3115,8 @@ Grab centre of box to reposition.</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1238</width>
-             <height>877</height>
+             <width>1242</width>
+             <height>881</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -3223,7 +3223,7 @@ Grab centre of box to reposition.</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1676</width>
+     <width>1680</width>
      <height>21</height>
     </rect>
    </property>

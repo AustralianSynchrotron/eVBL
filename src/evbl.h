@@ -12,6 +12,7 @@
 #include <qmath.h>
 #include <QSettings>
 #include <QResizeEvent>
+#include <QDesktopWidget>
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 

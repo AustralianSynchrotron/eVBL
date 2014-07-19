@@ -46,7 +46,29 @@ eVBL::eVBL(QWidget *parent) :
     ui(new Ui::eVBL)
 {
     ui->setupUi(this);
-    this->setGeometry(QRect(10,40,1640,980));
+
+    //detect screen resolution and set starting size
+    int set_width;
+    int set_height;
+    QRect screen_dimension = QApplication::desktop()->screenGeometry();
+    if (screen_dimension.width() <= 1366)
+    {
+        set_width = 1300;
+    }else if (screen_dimension.width() <= 1680){
+        set_width = 1500;
+    }else{
+        set_width = 1700;
+    }
+    if (screen_dimension.height() <= 768){
+        set_height = 700;
+    }else if (screen_dimension.height() <=900){
+        set_height = 800;
+    }else{
+        set_height = 980;
+    }
+
+    this->setGeometry(QRect(10,40,set_width,set_height));
+
 
     //hide the camera controls which are not yet functional
     ui->gain_slider->setHidden(true);
@@ -55,8 +77,6 @@ eVBL::eVBL(QWidget *parent) :
     ui->exposure_slider->setHidden(true);
     ui->label_exposure->setHidden(true);
     ui->spin_exposure->setHidden(true);
-
-
 
     read_setting_values();  //get saved settings from ini file
 
@@ -149,8 +169,14 @@ void eVBL::on_evbl_tabs_currentChanged(int index)   //make changes when new main
 
 void eVBL::update_video()  //update preview video window. Called from timer function every EVBL_PREVIEW_WINDOW_REFRESH milliseconds
 {
-    //qDebug() << "update video";
     videoCapture.read(preview_frame);
+    //avoid camera crash
+    cv::Size s = preview_frame.size();
+    int s_height = s.height;
+    int s_width = s.width;
+    if (s_height == 0 || s_width == 0){
+        return; //exit if image not aquired properly
+    }
     cv::resize(preview_frame,output_preview,cv::Size(EVBL_PREVIEW_WINDOW_WIDTH,EVBL_PREVIEW_WINDOW_HEIGHT),0,0,cv::INTER_LINEAR);
     ui->previewVideo->showImage(output_preview);
 }
@@ -190,19 +216,27 @@ void eVBL::on_multi_frame_button_clicked()   //take multiple series of shots and
     this->setCursor(Qt::WaitCursor);
     int frames = ui->spin_multi->value();
     cv::Mat averaged_image;
+    cv::Mat float_image;
+
+    //remove background logo
+    ui->capture_picture->setVisible(0);
+
     display_capture(preview_frame);
     ui->multishot_status->setText("Shot 1");
-    averaged_image = preview_frame/frames;
+    preview_frame.convertTo(float_image,CV_32F);
+    averaged_image = float_image/frames;
     for(int i = 2; i <= frames; i++)
     {
         update_video();
         ui->multishot_status->setText("Shot " + QString::number(i));
         //qDebug() << i;
         //display_capture(preview_frame);
-        averaged_image += preview_frame/frames;
+        preview_frame.convertTo(float_image,CV_32F);
+        averaged_image += float_image/frames;
     }
-    ui->multishot_status->setText("Averaging");
-    averaged_image.copyTo(buffered_snapshot);
+
+    ui->multishot_status->setText("Displaying");
+    averaged_image.convertTo(buffered_snapshot,CV_8U);
     display_capture(buffered_snapshot);
 
     preview_timer->start();

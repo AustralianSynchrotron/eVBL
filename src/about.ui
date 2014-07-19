@@ -35,7 +35,7 @@
    <string>Where it came from...</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="images.qrc">
+   <iconset>
     <normaloff>:/synch_icon.ico</normaloff>:/synch_icon.ico</iconset>
   </property>
   <property name="sizeGripEnabled">
@@ -207,7 +207,7 @@
          </font>
         </property>
         <property name="text">
-         <string>This build (1.1.0) compiled 10/04/2014</string>
+         <string>This build (1.2.0) compiled 20/07/2014</string>
         </property>
        </widget>
       </item>
