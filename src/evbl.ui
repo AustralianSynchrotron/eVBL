@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Detector Gadget.  Version 1.2.0     now with 80% less crashes... more laptop friendly</string>
+   <string>Detector Gadget.  Version 1.2.1     now includes 80% less crashes... more laptop friendly</string>
   </property>
   <property name="windowIcon">
    <iconset resource="images.qrc">
@@ -3115,8 +3115,8 @@ Grab centre of box to reposition.</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>1242</width>
-             <height>881</height>
+             <width>98</width>
+             <height>28</height>
             </rect>
            </property>
            <property name="sizePolicy">

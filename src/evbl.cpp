@@ -172,9 +172,7 @@ void eVBL::update_video()  //update preview video window. Called from timer func
     videoCapture.read(preview_frame);
     //avoid camera crash
     cv::Size s = preview_frame.size();
-    int s_height = s.height;
-    int s_width = s.width;
-    if (s_height == 0 || s_width == 0){
+    if (s.height == 0 || s.width == 0){
         return; //exit if image not aquired properly
     }
     cv::resize(preview_frame,output_preview,cv::Size(EVBL_PREVIEW_WINDOW_WIDTH,EVBL_PREVIEW_WINDOW_HEIGHT),0,0,cv::INTER_LINEAR);
@@ -343,6 +341,9 @@ void eVBL::on_save_image_button_clicked()   //save buffered captured camera imag
     {
         return;
     }
+    //stop preview timer
+    preview_timer->stop();
+
     //get text to create auto filename
     QString initials = ui->info_initials->text();
     QString school = ui->info_school->text();
@@ -383,6 +384,11 @@ void eVBL::on_save_image_button_clicked()   //save buffered captured camera imag
 
        if(reply == QMessageBox::No)
         {
+           //start preview camera again
+           if (ui->device_list->currentIndex() != -1)          //ignore if no cameras connected
+            {
+               preview_timer->start(1000/PREVIEW_FPS);  //gets the preview video working
+            }
             return;
         }
     }
@@ -391,10 +397,23 @@ void eVBL::on_save_image_button_clicked()   //save buffered captured camera imag
     QString savefilename = QFileDialog::getSaveFileName(this,"Save Image",QDir::currentPath() + "/" + auto_name,tr("Tiff (*.tif);;Bitmap (*.bmp);;JPEG (*.jpg);;All Files (*.*)"));
     QByteArray ba = savefilename.toUtf8();
     const char *cv_filesave = ba.data();
-    if (savefilename.isEmpty()){return;}
+    if (savefilename.isEmpty())
+     {
+        //start preview camera again
+        if (ui->device_list->currentIndex() != -1)          //ignore if no cameras connected
+         {
+            preview_timer->start(1000/PREVIEW_FPS);  //gets the preview video working
+         }
+        return;
+    }
 
     //qDebug() << cv_filesave;
     cv::imwrite(cv_filesave,buffered_snapshot);
+    //start preview camera again
+    if (ui->device_list->currentIndex() != -1)          //ignore if no cameras connected
+    {
+        preview_timer->start(1000/PREVIEW_FPS);  //gets the preview video working
+    }
 
 
 }

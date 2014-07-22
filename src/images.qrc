@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/">
-        <file>logo.png</file>
         <file>DetectorGadgetIcon.ico</file>
         <file>DGadget_Screen_v6.png</file>
         <file>DGadget_Screen_v6-midsize.png</file>
+        <file>logo.png</file>
     </qresource>
 </RCC>
