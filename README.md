@@ -62,6 +62,17 @@ Deploying
 
 To build static Qt:
 
+The easy way:
+
+Have a prebuilt non-static QT version installed already then go to http://qt-project.org/wiki/How-to-build-a-static-Qt-for-Windows-MinGW
+
+follow the instructions for running the windows-build-qt-static.ps1 script in powershell
+
+may need to install the dependencies in the manual installation instructions below. Not sure.
+
+
+Manually:
+
 1. Download the Qt source code and unzip to `C:\Qt\Qt5.1.1-src\`.
 2. Install depedencies in `C:\Qt\Qt5.1.1-src\README`:
   * [Perl](http://strawberryperl.com/)
