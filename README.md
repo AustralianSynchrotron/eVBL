@@ -1,12 +1,17 @@
+Detector Gadget
+===============
+Australian Synchrotron Educational Virtual Beamline
+---------------------------------------------------
+
 Software to save and analyse diffraction pattern images from the Australian Synchrotron Educational Virtual Beam Line (eVBL) area detectors.
 
 Installing
-==========
+----------
 
 The folder "executables" contains the already built executable applications for windows. Download the most recent version and run.
 
 Developing
-==========
+----------
 
 1. Install [Qt5 **including source and MinGW**](http://qt-project.org/downloads).
 2. Install [CMake](http://www.cmake.org/cmake/resources/software.html).
