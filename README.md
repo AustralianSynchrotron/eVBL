@@ -1,7 +1,12 @@
 Software to save and analyse diffraction pattern images from the Australian Synchrotron Educational Virtual Beam Line (eVBL) area detectors.
 
+Installing
+==========
+
+The folder "executables" contains the already built executable applications for windows. Download the most recent version and run.
+
 Developing
-----------
+==========
 
 1. Install [Qt5 **including source and MinGW**](http://qt-project.org/downloads).
 2. Install [CMake](http://www.cmake.org/cmake/resources/software.html).
@@ -57,21 +62,21 @@ Developing
   /path/to/project/src/opencv/install/debug/bin
   ```
 
-Deploying
----------
+Build static Qt
+-----------------
 
-To build static Qt:
-
-The easy way:
+#### The easy way:
 
 Have a prebuilt non-static QT version installed already then go to http://qt-project.org/wiki/How-to-build-a-static-Qt-for-Windows-MinGW
 
 follow the instructions for running the windows-build-qt-static.ps1 script in powershell
 
-may need to install the dependencies in the manual installation instructions below. Not sure.
+may need to install the dependencies outlined below first. Not sure.
+
+Finally integrate the static version of Qt into QtCreator.
 
 
-Manually:
+#### The hard way... which may not work as easily as described:
 
 1. Download the Qt source code and unzip to `C:\Qt\Qt5.1.1-src\`.
 2. Install depedencies in `C:\Qt\Qt5.1.1-src\README`:
@@ -79,6 +84,8 @@ Manually:
   * [Python 2.7](http://www.python.org/download/)
   * [Ruby](http://rubyinstaller.org/downloads/)
   * [ICU](http://qt-project.org/wiki/Compiling-ICU-with-MinGW)
+  
+  also make sure on widows the directX SDK is present. If not download and install from microsoft. 
 
 3. Add to your `PATH`:
   
