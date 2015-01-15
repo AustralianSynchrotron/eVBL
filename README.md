@@ -8,7 +8,7 @@ Software to save and analyse diffraction pattern images from the Australian Sync
 Installing
 ----------
 
-The folder "executables" contains the already built executable applications for windows. Download the most recent version and run.
+Download the latest version of the windows executable in the release folder above. It should run straight away.
 
 Developing
 ----------
