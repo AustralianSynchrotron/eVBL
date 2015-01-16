@@ -37,6 +37,7 @@ Debug:LIBS += -L$$PWD\\opencv\\install\\debug\\lib
 Release:INCLUDEPATH += opencv\\install\\release\\include
 Release:LIBS += -L$$PWD\\opencv\\install\\release\\lib
 Release:LIBS += -L$$PWD\\opencv\\install\\release\\share\\OpenCV\\3rdparty\\lib
+Release:LIBS += -L$$PWD\\opencv\\3rdparty\\lib
 #Release:INCLUDEPATH += "C:\Program Files\Microsoft SDKs\Windows\v7.1\Include"
 #Release:INCLUDEPATH += -L$$PWD\\opencv\\3rdparty\\include\\ffmpeg_
 #Release:LIBS += "C:\Program Files\Microsoft SDKs\Windows\v7.1\Lib\Vfw32.Lib"
@@ -76,10 +77,8 @@ win32 {
     -lswscale \
     -lwsock32 \
     -lopencv_video246 \
-    -lopencv_core246
-
-
-
+    -lopencv_core246 \
+    -lzlib
 }
 
 RC_FILE = icon.rc

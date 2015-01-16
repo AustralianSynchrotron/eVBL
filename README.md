@@ -40,15 +40,13 @@ Developing
 
   ```bat
   cd src\opencv
-  mkdir build
-  cd build
-  cmake -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=DEBUG -D BUILD_opencv_python=OFF -D CMAKE_INSTALL_PREFIX="%CD%\..\install\debug" ..
+  cmake -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=DEBUG -D BUILD_opencv_python=OFF -D CMAKE_INSTALL_PREFIX="%CD%\install\debug" .
   mingw32-make install
   ```
 
   To compile static libraries for release on Windows change the cmake options to:
   ```bat
-  cmake -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=RELEASE -D BUILD_SHARED_LIBS=NO -D BUILD_opencv_python=OFF -D CMAKE_INSTALL_PREFIX="%CD%\..\install\release" ..
+  cmake -G "MinGW Makefiles" -D CMAKE_BUILD_TYPE=RELEASE -D BUILD_SHARED_LIBS=NO -D BUILD_opencv_python=OFF -D CMAKE_INSTALL_PREFIX="%CD%\install\release" .
   ```
   
   On Linux/Mac OS X:
