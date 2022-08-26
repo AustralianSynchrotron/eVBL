@@ -1,3 +1,11 @@
+⚠️ NOT MAINTAINED ⚠️
+===============
+Please note that this repository, code and binary executables are not maintained or supported any longer. Use at your own risk.
+
+Please feel free to fork the repository.
+
+
+
 Detector Gadget
 ===============
 Australian Synchrotron Educational Virtual Beamline
